@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mentős Oktató – Anatómia és élettan</title>
+  <meta name="description" content="Mentős Oktató – anatómia és élettan demó: magyarázat, gyakorlás és vizsga a Donáth-tankönyv fejezetei szerint.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="#/" class="logo"><h1>🚑 Mentős Oktató</h1></a>
+  </header>
+
+  <main id="tartalom">
+    <noscript><p class="indulasi-hiba">A gyakorló működéséhez engedélyezd a JavaScriptet a böngészőben.</p></noscript>
+  </main>
+
+  <script>
+    // Ha egy hiba miatt nem jelenik meg a tananyag, legalább a hiba oka látsszon (üres oldal helyett).
+    window.addEventListener('error', function (e) {
+      var m = document.getElementById('tartalom');
+      if (!m || (m.textContent.trim() && !m.querySelector('.betoltes'))) return;
+      m.innerHTML = '<div class="indulasi-hiba"><b>A tananyag nem tudott elindulni.</b><p>Próbáld meg frissíteni az oldalt, ' +
+        'vagy nyisd meg egy friss böngészőben (Chrome, Firefox, Safari, Edge). Ha a hiba megmarad, küldd el ezt az üzenetet:</p><code></code></div>';
+      m.querySelector('code').textContent = (e.message || 'ismeretlen hiba') + (e.filename ? ' – ' + e.filename.split('/').slice(-2).join('/') + ':' + e.lineno : '');
+    });
+  </script>
+
+  <footer>
+    <p><b>Fontos:</b> ez egy tanulást segítő gyakorló. Nem helyettesíti a tankönyveket, az oktatót, a hatályos
+      szakmai protokollokat (pl. ERC-irányelvek, OMSZ-eljárásrendek) és az orvosi utasítást.</p>
+    <p>Nyílt forráskódú, ingyenes oktatási eszköz. Az eredményeid csak ezen az eszközön, a böngészőben tárolódnak.</p>
+    <button type="button" id="torles" class="gomb masodlagos kicsi">Eredményeim törlése</button>
+  </footer>
+
+  <!-- Kiadás: csak az anatómia érhető el -->
+  <script src="js/kiadas.js"></script>
+
+  <!-- Keretrendszer -->
+  <script src="js/tananyag.js"></script>
+  <script src="js/rajz.js"></script>
+  <script src="js/rajz-test.js"></script>
+  <script src="js/animacio.js"></script>
+
+  <!-- Tantárgyak: új tantárgy = új mappa a tantargyak/ alatt + egy sor itt.
+       A témafájlokat a tantargy.js menüje alapján a keret tölti be. -->
+  <script src="tantargyak/cimkek.js"></script>
+  <script src="tantargyak/mentoapolas/tantargy.js"></script>
+  <script src="tantargyak/szakapolas/tantargy.js"></script>
+  <script src="tantargyak/surgosseg/tantargy.js"></script>
+  <script src="tantargyak/anatomia/tantargy.js"></script>
+  <script src="tantargyak/latin/tantargy.js"></script>
+  <script src="tantargyak/esetek/tantargy.js"></script>
+
+  <script src="js/app.js"></script>
+  <script src="js/vizsga.js"></script>
+</body>
+</html>
