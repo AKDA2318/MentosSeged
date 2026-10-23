@@ -2,33 +2,71 @@
 'use strict';
 
 (() => {
-  // Emberi test elölről, irányjelző nyilakkal
+  // Emberi test elölről, irányjelző nyilakkal. Minden nyíl egy ponttól (a kiindulási helytől) indul,
+  // és abba az irányba mutat, amit a szakszó jelent. kiemel: a megjelenítendő nyilak/részek listája
+  // ('felso', 'also', 'medialis', 'lateralis', 'proximalis', 'distalis', 'kar', 'jobb', 'bal'); üres = mind.
   function iranyok(kiemel = []) {
-    const nyil = (azon, x1, y1, x2, y2, t, tx, ty, h = 'middle') =>
-      kiemel.length && !kiemel.includes(azon)
-        ? ''
-        : `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="ut oxi" marker-end="url(#nyilhegy-oxi)"/>` + Rajz.szoveg(tx, ty, t, 'kicsi piros', h);
-    const test = Rajz.ember({ feliratok: {}, nezet: 'elol' }).replace(/<svg[^>]*>/, '').replace('</svg>', '');
-    return `<svg viewBox="-110 -20 380 340" class="abra" role="img" aria-label="Anatómiai irányok">
+    const van = (azon) => !kiemel.length || kiemel.includes(azon);
+    const pont = (x, y) => `<circle cx="${x}" cy="${y}" r="4" class="iranypont"/>`;
+    const nyil = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="ut oxi" marker-end="url(#nyilhegy-oxi)"/>`;
+    const cimke = (x, y, sorok, h = 'middle') => sorok.map((t, k) => Rajz.szoveg(x, y + k * 14, t, 'kicsi piros', h)).join('');
+    // A közös rajzoló „elölről” feliratát (a lábfejek alatt) áthelyezzük, mert ott indul az alsó nyíl.
+    const test = Rajz.ember({ feliratok: {}, nezet: 'elol' }).replace(/<svg[^>]*>/, '').replace('</svg>', '')
+      .replace(/<text\b[^>]*>elölről<\/text>/, '') + Rajz.szoveg(116, 290, 'elölről', 'kicsi halvany-szoveg', 'start');
+    let r = '';
+    // Középvonal (a középsík nyoma): a mediális és laterális irány ehhez viszonyít.
+    if (van('medialis') || van('lateralis')) {
+      r += `<line x1="80" y1="-8" x2="80" y2="300" class="vonal-kozep"/>` + Rajz.szoveg(74, -14, 'középvonal', 'kicsi', 'end');
+    }
+    // Végtag: a könyök előtti (felkar) és utáni (alkar) rész a jobb karon.
+    if (van('kar')) {
+      r +=
+        `<path d="M46 60 q-14 2 -16 16 l-3.5 34 h19 l2.5 -24 Z" class="kar-proximalis"/>` +
+        `<path d="M26.5 110 l-4.5 44 q-1 8 6 9 h6 q6 0 7 -7 l4.5 -46 Z" class="kar-distalis"/>` +
+        `<line x1="-2" y1="110" x2="24" y2="110" class="vonal-kozep"/>` +
+        Rajz.szoveg(-6, 114, 'könyök', 'kicsi', 'end') +
+        cimke(-6, 70, ['felkar:', 'proximálisan'], 'end') +
+        cimke(-6, 146, ['alkar:', 'disztálisan'], 'end');
+    }
+    if (van('felso')) r += pont(80, 8) + nyil(80, 3, 80, -20) + cimke(90, -12, ['felső (kraniális)'], 'start');
+    if (van('also')) r += pont(66, 292) + nyil(66, 297, 66, 318) + cimke(78, 314, ['alsó (kaudális)'], 'start');
+    if (van('medialis')) r += pont(126, 100) + nyil(121, 100, 86, 100) + cimke(146, 96, ['középhez közeli', '(mediális)'], 'start');
+    if (van('lateralis')) r += pont(66, 100) + nyil(61, 100, -12, 100) + cimke(-16, 96, ['oldalsó', '(laterális)'], 'end');
+    // A végtagon a pont a könyök; a nyíl a kar tengelyében a törzs felé (proximális) vagy attól el (disztális) mutat.
+    if (van('proximalis')) r += pont(36, 110) + nyil(37, 104, 41, 66) + (van('kar') ? '' : cimke(-6, 76, ['törzshöz közeli', '(proximális)'], 'end'));
+    if (van('distalis')) r += pont(36, 110) + nyil(35, 116, 32, 158) + (van('kar') ? '' : cimke(-6, 146, ['távoli', '(disztális)'], 'end'));
+    if (van('jobb')) r += nyil(-30, 230, -90, 230) + cimke(-60, 248, ['a beteg', 'JOBB oldala']);
+    if (van('bal')) r += nyil(190, 230, 250, 230) + cimke(220, 248, ['a beteg', 'BAL oldala']);
+    return `<svg viewBox="-110 -30 380 352" class="abra" role="img" aria-label="Anatómiai irányok">
       <defs><marker id="nyilhegy-oxi" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="nyilhegy oxi"/></marker></defs>
-      ${test}
-      ${nyil('felso', 80, 0, 80, -14, 'felső (kraniális)', 130, -12, 'start')}
-      ${nyil('also', 80, 296, 80, 312, 'alsó (kaudális)', 130, 310, 'start')}
-      ${nyil('medialis', 22, 140, 70, 140, 'középhez közeli (mediális)', -28, 128, 'middle')}
-      ${nyil('lateralis', 140, 140, 190, 140, 'oldalsó (laterális)', 210, 128, 'middle')}
-      ${nyil('proximalis', 8, 150, 20, 86, 'törzshöz közeli', 4, 78, 'end')}
-      ${nyil('distalis', 40, 180, 40, 262, 'távoli (disztális)', 34, 272, 'end')}
-      ${nyil('jobb', -40, 230, -90, 230, 'a beteg JOBB oldala', -60, 248, 'middle')}
+      ${test}${r}
     </svg>`;
+  }
+
+  // A has kilenc tájéka (szemből nézve: a beteg jobb oldala a rajz bal oldalán)
+  function kilencTajek() {
+    const T = [
+      ['jobb bordaív', 'alatti tájék'], ['gyomortáj'], ['bal bordaív', 'alatti tájék'],
+      ['jobb oldali', 'hastájék'], ['köldöktáj'], ['bal oldali', 'hastájék'],
+      ['jobb', 'lágyéktájék'], ['alhas'], ['bal', 'lágyéktájék'],
+    ];
+    const cella = (sorok, i) => {
+      const x = 10 + (i % 3) * 100, y = 10 + Math.floor(i / 3) * 64;
+      return `<rect x="${x}" y="${y}" width="100" height="64" class="test"/>` +
+        sorok.map((t, k) => Rajz.szoveg(x + 50, y + 36 - (sorok.length - 1) * 7 + k * 14 + (i === 4 ? 6 : 0), t, 'kicsi')).join('');
+    };
+    return Rajz.svg(320, 236, T.map(cella).join('') + '<circle cx="160" cy="90" r="3" class="pont"/>' +
+      Rajz.szoveg(72, 226, 'a beteg JOBB oldala', 'kicsi') + Rajz.szoveg(248, 226, 'a beteg BAL oldala', 'kicsi'),
+      'A has kilenc tájéka');
   }
 
   // ---- Animáció ----
   const animacio = [
     { felirat: 'Az irányokat mindig az <b>anatómiai alaphelyzetből</b> nézzük: a beteg áll, szemből néz ránk, a karjai lógnak, a tenyere előre néz.', rajz: () => iranyok(['nincs']) },
     { felirat: '<b>Felső (superior, cranialis)</b> = a fej felé; <b>alsó (inferior, caudalis)</b> = a láb (a far) felé. Pl. a szív a rekeszizom fölött (kraniálisan) van.', rajz: () => iranyok(['felso', 'also']) },
-    { felirat: '<b>Mediális</b> (középhez közel eső) = a test középvonala felé; <b>oldalsó (laterális)</b> = a középvonaltól el. Pl. a fül laterálisan van az orrhoz képest.', rajz: () => iranyok(['medialis', 'lateralis']) },
-    { felirat: 'Végtagokon: <b>proximális</b> = a törzshöz közelebb, <b>disztális</b> = a törzstől távolabb. Pl. a könyök proximális a csuklóhoz képest.', rajz: () => iranyok(['proximalis', 'distalis']) },
-    { felirat: '<b>Jobb és bal</b> mindig a <b>beteg</b> szemszögéből értendő! Szemből nézve a beteg jobb oldala a <b>te bal oldaladon</b> van.', rajz: () => iranyok(['jobb']) },
+    { felirat: 'A szaggatott vonal a <b>középvonal</b> (a középsík nyoma), amely a testet jobb és bal testfélre osztja. <b>Mediális</b> (középhez közel eső) = a középvonal felé; <b>oldalsó (laterális)</b> = a középvonaltól el. A pont mutatja, honnan indulunk. Pl. a fül laterálisan van az orrhoz képest.', rajz: () => iranyok(['medialis', 'lateralis']) },
+    { felirat: 'Végtagokon a <b>törzshöz</b> viszonyítunk. A könyökhöz képest a <b>felkar</b> (kék) <b>proximálisan</b> van, vagyis a törzshöz közelebb; az <b>alkar</b> (narancs) <b>disztálisan</b>, vagyis a törzstől távolabb. Pl. a könyök proximális a csuklóhoz képest.', rajz: () => iranyok(['kar', 'proximalis', 'distalis']) },
+    { felirat: '<b>Jobb és bal</b> mindig a <b>beteg</b> szemszögéből értendő! Szemből nézve a beteg jobb oldala a <b>te bal oldaladon</b>, a beteg bal oldala a <b>te jobb oldaladon</b> van.', rajz: () => iranyok(['jobb', 'bal']) },
   ];
 
   // ---- Interaktív rész: hasi negyedek ----
@@ -36,7 +74,7 @@
     jf: ['Jobb felső negyed', 'máj, epehólyag, a vastagbél egy része, jobb vese (hátul)', 'epekő, májsérülés'],
     bf: ['Bal felső negyed', 'gyomor, lép, hasnyálmirigy farka, bal vese (hátul)', 'lépsérülés (bal vállba sugárzó fájdalom!)'],
     ja: ['Jobb alsó negyed', 'vakbél és féregnyúlvány, vékonybél vége, jobb petefészek', 'vakbélgyulladás'],
-    ba: ['Bal alsó negyed', 'leszálló vastagbél, szigmabél, bal petefészek', 'vastagbél-diverticulitis'],
+    ba: ['Bal alsó negyed', 'leszálló vastagbél, szigmabél, bal petefészek', 'a vastagbél gurdélyainak gyulladása (diverticulitis)'],
   };
   function interaktiv(el) {
     const negyed = (k, x, y) => `<rect x="${x}" y="${y}" width="90" height="80" class="test kattinthato" data-n="${k}"/>`;
@@ -44,7 +82,7 @@
       <div class="rajz"><svg viewBox="0 0 220 220" class="abra" role="img" aria-label="Hasi negyedek">
         ${negyed('jf', 20, 20)}${negyed('bf', 110, 20)}${negyed('ja', 20, 100)}${negyed('ba', 110, 100)}
         <circle cx="110" cy="100" r="5" class="pont"/>
-        ${Rajz.szoveg(110, 112, 'köldök', 'kicsi')}
+        ${Rajz.szoveg(116, 90, 'köldök', 'kicsi', 'start')}
         ${Rajz.szoveg(65, 205, 'beteg JOBB', 'kicsi')}${Rajz.szoveg(155, 205, 'beteg BAL', 'kicsi')}
       </svg></div>
       <div class="szamitas"><p>Kattints egy hasi negyedre!</p></div></div>`;
@@ -99,7 +137,7 @@
         valasztas: ['A rekeszizom', 'A bordaközi izmok', 'A hasizom', 'A nyakizom'],
         valasz: 'A rekeszizom',
         segitseg: 'A legfontosabb légzőizom is.',
-        megoldas: 'A rekeszizom (diaphragma) kupola alakú izom, ami elválasztja a mellüreget a hasüregtől, és a fő belégző izom.',
+        megoldas: 'A rekeszizom (diaphragma) kupola alakú izom, amely elválasztja a mellüreget a hasüregtől, és a fő belégző izom.',
       },
       {
         kerdes: 'Melyik hasi negyedben van a <b>máj</b> nagy része?',
@@ -157,11 +195,11 @@
         megoldas: 'A vakbél és a féregnyúlvány a jobb alsó negyedben van. Vakbélgyulladásnál a fájdalom gyakran a köldök körül kezd, majd ide vándorol.',
       },
       {
-        kerdes: 'Mit jelent a <b>felszíni</b> (superficialis) és a <b>mély</b> (profundus)?',
+        kerdes: 'Mit jelent a <b>felületi</b> (superficialis) és a <b>mély</b> (profundus)?',
         valasztas: ['A test felszínéhez közelebb, illetve attól távolabb, beljebb', 'Felül és alul', 'Elöl és hátul', 'Jobbra és balra'],
         valasz: 'A test felszínéhez közelebb, illetve attól távolabb, beljebb',
-        segitseg: 'A bőr felszíni, a csont mélyebben van.',
-        megoldas: 'Felszíni = a bőrhöz közelebb (pl. a felszíni vénák), mély = beljebb (pl. a mélyvénák, ahol a trombózis veszélyesebb).',
+        segitseg: 'A bőr felületi, a csont mélyebben van.',
+        megoldas: 'Felületi (superficialis) = a test felszínéhez, a bőrhöz közelebb (pl. a felületi vénák); mély (profundus) = beljebb (pl. a mély vénák, ahol a trombózis veszélyesebb).',
       },
       {
         kerdes: 'Mi a <b>tenyéri</b> és a <b>talpi</b> oldal szakszava?',
@@ -194,18 +232,18 @@
         megoldas: 'Disztális harmad = a csuklóhoz közeli harmad. Laterális oldal alaphelyzetben (tenyér előre) = hüvelykujj (orsócsont) felőli oldal.',
       },
       {
-        kerdes: 'Melyik leírás <b>helyes</b> a köldök alatti, középvonali területre?',
-        valasztas: ['Hipogasztrium (alhas közepe)', 'Epigasztrium', 'Jobb csípőtáj', 'Bal bordaív alatti tájék'],
-        valasz: 'Hipogasztrium (alhas közepe)',
-        segitseg: '„hipo” = alatt, „gaszter” = gyomor.',
-        megoldas: 'Hipogasztrium: a köldök alatti középső terület (húgyhólyag, méh). Epigasztrium: a köldök fölötti, szegycsont alatti terület (gyomortáj).',
+        kerdes: 'Hogyan nevezzük a köldök alatti, középvonali hasi tájékot?',
+        valasztas: ['Hypogastrium (alhas)', 'Epigastrium (gyomortáj)', 'Jobb lágyéktájék', 'Bal bordaív alatti tájék'],
+        valasz: 'Hypogastrium (alhas)',
+        segitseg: '„hypo” = alatt, „gaster” = gyomor.',
+        megoldas: 'Hypogastrium (alhas): a köldök alatti középső terület (húgyhólyag, méh). Epigastrium (gyomortáj): a köldök fölötti, szegycsont alatti terület.',
       },
       {
-        kerdes: 'Melyik a gyomortáji (szegycsont alatti) régió neve, ahová az infarktus fájdalma is sugározhat?',
-        valasztas: ['Epigasztrium', 'Hipogasztrium', 'Lágyék', 'Ágyék'],
-        valasz: 'Epigasztrium',
+        kerdes: 'Mi a latin neve a szegycsont alatti, köldök fölötti hasi tájéknak (gyomortáj), ahová az infarktus fájdalma is sugározhat?',
+        valasztas: ['Epigastrium', 'Hypogastrium', 'Regio umbilicalis', 'Regio inguinalis'],
+        valasz: 'Epigastrium',
         segitseg: '„epi” = fölött.',
-        megoldas: 'Epigasztrium: a szegycsont alatti, köldök fölötti terület. Alsó fali infarktus fájdalma ide is sugározhat – „gyomorfájásnak” tűnhet!',
+        megoldas: 'Epigastrium (gyomortáj): a szegycsont alatti, köldök fölötti terület. Alsó fali infarktus fájdalma ide is sugározhat – „gyomorfájásnak” tűnhet!',
       },
       { kerdes: 'Mi a különbség a <b>tuber</b> és a <b>tuberculum</b> között?', valasztas: ['A tuber nagyobb dudor, a tuberculum kis dudor (kiemelkedés)', 'A tuber lyuk, a tuberculum árok', 'A tuber csont, a tuberculum izom', 'Ugyanazt jelentik'], valasz: 'A tuber nagyobb dudor, a tuberculum kis dudor (kiemelkedés)', szakma: CIMKEK.LATIN, segitseg: 'Az „-ulum” kicsinyítő képző.', megoldas: 'Tuber = dudor, tuberculum = kis dudor, kiemelkedés (az „-ulum”, „-ulus” kicsinyít). Pl. tuber ischiadicum = ülőgumó, tuberculum majus = a felkarcsont nagy dudora.' },
       {
@@ -222,12 +260,12 @@
       },
       { kerdes: 'A mikroszkópban 40-szeres objektívet és 8-szoros okulárt használsz. Hányszoros a nagyítás?', valasz: 320, egyseg: '×', szakma: CIMKEK.SZAMOLAS, segitseg: 'A két lencse nagyítását össze kell szorozni.', megoldas: 'Nagyítás = objektív · okulár = 40 · 8 = 320-szoros. A hagyományos fénymikroszkóp kb. 10–1500-szoros nagyításra képes, az elektronmikroszkóp több százezerszeresre.' },
       {
-        kerdes: 'A bal oldali bordaív alatti, hátulról az ágyéktájra sugárzó fájdalom melyik szerv betegségére utalhat leginkább?',
+        kerdes: 'A beteg bal oldali, hátul a bordák alatt (az ágyéktájon) jelentkező, a lágyék felé sugárzó görcsös fájdalomra panaszkodik. Melyik szerv betegségére utalhat ez leginkább?',
         szakma: CIMKEK.ESET,
         valasztas: ['Bal vese (pl. vesekő)', 'Féregnyúlvány', 'Máj', 'Húgyhólyag'],
         valasz: 'Bal vese (pl. vesekő)',
         segitseg: 'A vesék hátul, a bordák alatt vannak.',
-        megoldas: 'A vesék a hasüreg mögött (retroperitoneálisan), a hát felső ágyéki részén vannak. A vesekő oldalsó, ágyéki, a lágyék felé sugárzó görcsös fájdalmat okoz.',
+        megoldas: 'A vesék a hashártya mögött (retroperitoneálisan), a hátsó hasfal felső ágyéki részén vannak. A vesekő oldalsó, ágyéki, a lágyék felé sugárzó görcsös fájdalmat okoz.',
       },
       {
         kerdes: 'Melyik szerv van <b>retroperitoneálisan</b> (a hashártya mögött)?',
@@ -248,7 +286,7 @@
       { kerdes: 'Mit jelent a <b>dexter</b> és a <b>sinister</b>?', valasztas: ['Jobb, illetve bal', 'Bal, illetve jobb', 'Elülső, illetve hátsó', 'Felső, illetve alsó'], valasz: 'Jobb, illetve bal', szakma: CIMKEK.LATIN, segitseg: 'A „dexter” a „dextrokardia” (jobbra helyezett szív) szóban is benne van.', megoldas: 'Dexter = jobb, sinister = bal (pl. arteria carotis communis sinistra = bal közös fejverőér). Mindig a beteg jobb és bal oldala!' },
       { kerdes: 'Melyik testüregben van az agy?', valasztas: ['Koponyaüreg', 'Mellüreg', 'Hasüreg', 'Medenceüreg'], valasz: 'Koponyaüreg', segitseg: 'A koponya védi.', megoldas: 'Az agy a koponyaüregben, a gerincvelő a gerinccsatornában van – együtt a hátsó (dorzális) testüreg.' },
       { kerdes: 'Melyik testüregben van a húgyhólyag?', valasztas: ['Medenceüreg', 'Mellüreg', 'Koponyaüreg', 'Gerinccsatorna'], valasz: 'Medenceüreg', segitseg: 'A has legalsó része.', megoldas: 'A medenceüregben van a húgyhólyag, a végbél, nőknél a méh és a petefészkek.' },
-      { kerdes: 'Mit jelent a <b>foramen</b>?', valasztas: ['Lyuk', 'Árok', 'Bevágás', 'Taraj'], valasz: 'Lyuk', szakma: CIMKEK.LATIN, segitseg: 'A nyakszirtcsont nagy lyuka: foramen magnum.', megoldas: 'Foramen = lyuk (pl. foramen magnum = nagy nyakszirti lyuk). Hasonló gyűjtőnevek: sulcus = árok, incisura = bevágás, fissura = hasadék, crista = taraj.' },
+      { kerdes: 'Mit jelent a <b>foramen</b>?', valasztas: ['Lyuk', 'Árok', 'Bevágás', 'Taraj'], valasz: 'Lyuk', szakma: CIMKEK.LATIN, segitseg: 'Pl. a foramen magnumon át folytatódik az agytörzs a gerincvelőbe.', megoldas: 'Foramen = lyuk (pl. foramen magnum = nagy nyakszirti lyuk). Hasonló gyűjtőnevek: sulcus = árok, incisura = bevágás, fissura = hasadék, crista = taraj.' },
       { kerdes: 'Hol van a <b>kézhát</b>?', valasztas: ['A kéz tenyérrel ellentétes oldala (dorzális oldal)', 'A tenyér', 'A csukló belső oldala', 'Az ujjbegyek'], valasz: 'A kéz tenyérrel ellentétes oldala (dorzális oldal)', segitseg: 'Dorsum = hát.', megoldas: 'A kézhát a kéz dorzális oldala, a tenyér a palmáris (volaris) oldal. Kanült gyakran a kézháti vénákba teszünk.' },
       { kerdes: 'Mi a <b>köldök</b> szerepe a has felosztásában?', valasztas: ['A rajta átmenő függőleges és vízszintes vonal osztja négy negyedre a hasat', 'Semmi', 'A mellkas határa', 'A medence közepe'], valasz: 'A rajta átmenő függőleges és vízszintes vonal osztja négy negyedre a hasat', segitseg: 'Kvadránsok.', megoldas: 'A köldökön át húzott két vonal négy negyedet (kvadránst) jelöl ki: jobb felső, bal felső, jobb alsó, bal alsó.' },
     ]),
@@ -256,11 +294,11 @@
       { kerdes: 'Mit jelent az <b>ipszilaterális</b>?', valasztas: ['Azonos oldali', 'Ellenoldali', 'Kétoldali', 'Középvonali'], valasz: 'Azonos oldali', segitseg: 'Ipse = ugyanaz.', megoldas: 'Ipszilaterális: ugyanazon az oldalon; kontralaterális: az ellenkező oldalon. Pl. stroke: kontralaterális bénulás.' },
       { kerdes: 'Mivel konzerválják (tartósítják) a tetemet a boncolás előtt?', valasztas: ['10%-os formalinnal, amelyet az érpályába fecskendeznek', 'Konyhasóval bedörzsölve', 'Hűtéssel, mínusz 80 °C-on', 'Hidrogén-peroxidos áztatással'], valasz: '10%-os formalinnal, amelyet az érpályába fecskendeznek', segitseg: 'Formaldehid vizes oldata.', megoldas: 'A tetemet rendszerint 10%-os formalin érpályába fecskendezésével konzerválják; ez a boncolás (preparálás) feltétele.' },
       { kerdes: 'Mi a <b>mediastinum</b> (gátorüreg)?', valasztas: ['A két tüdő közötti térség, benne a szív, a nagy erek, a légcső, a nyelőcső', 'A hasüreg közepe', 'A koponyaüreg alja', 'A medence közepe'], valasz: 'A két tüdő közötti térség, benne a szív, a nagy erek, a légcső, a nyelőcső', segitseg: 'A mellüreg középső része.', megoldas: 'A mediastinum a mellüreg középső része. Feszülő légmellben a mediastinum az ép oldal felé tolódik.' },
-      { kerdes: 'Melyik hasi régió neve a köldök körüli terület?', valasztas: ['Köldöktáj (regio umbilicalis)', 'Gyomortáj (epigastrium)', 'Alhas (hypogastrium)', 'Lágyék (regio inguinalis)'], valasz: 'Köldöktáj (regio umbilicalis)', segitseg: 'Umbilicus = köldök.', megoldas: 'A has 9 régiója közül a középső sor: gyomortáj (fent), köldöktáj (középen), alhas (lent).' },
-      { kerdes: 'Melyik régió a <b>hypochondrium</b>?', valasztas: ['A bordaív alatti oldalsó terület (jobb és bal)', 'A köldök körüli terület', 'A lágyék', 'A gát'], valasz: 'A bordaív alatti oldalsó terület (jobb és bal)', segitseg: 'Hypo = alatt, chondros = porc (bordaporc).', megoldas: 'Jobb hypochondrium: máj, epehólyag. Bal hypochondrium: lép, gyomor egy része.' },
+      { kerdes: 'Melyik hasi tájék neve a köldök körüli terület?', valasztas: ['Köldöktáj (regio umbilicalis)', 'Gyomortáj (epigastrium)', 'Alhas (hypogastrium)', 'Lágyék (regio inguinalis)'], valasz: 'Köldöktáj (regio umbilicalis)', segitseg: 'Umbilicus = köldök.', megoldas: 'A has 9 tájéka közül a középső oszlop felülről lefelé: gyomortáj (epigastrium), köldöktáj (regio umbilicalis), alhas (hypogastrium).' },
+      { kerdes: 'Melyik hasi tájék a <b>hypochondrium</b>?', valasztas: ['A bordaív alatti oldalsó terület (jobb és bal)', 'A köldök körüli terület', 'A lágyék', 'A gát'], valasz: 'A bordaív alatti oldalsó terület (jobb és bal)', segitseg: 'Hypo = alatt, chondros = porc (bordaporc).', megoldas: 'Jobb hypochondrium: máj, epehólyag. Bal hypochondrium: lép, gyomor egy része.' },
       { kerdes: 'Mi a <b>macerálás</b>?', valasztas: ['A csontok kikészítése: lágyrészeiktől megtisztítva hetekig langyos vízben áztatják, majd zsírtalanítják és fehérítik', 'Az erek kitöltése festett masszával', 'A szövet vékony szeletekre vágása', 'A tetem fagyasztása'], valasz: 'A csontok kikészítése: lágyrészeiktől megtisztítva hetekig langyos vízben áztatják, majd zsírtalanítják és fehérítik', segitseg: 'Macerálás = áztatás.', megoldas: 'Macerálás: áztatás közben leválnak a csonthártya- és izommaradványok; benzinnel zsírtalanítják, hidrogén-peroxiddal fehérítik. Ezekből a csontokból fűzik össze a tanuló csontvázat.' },
       { kerdes: 'Mit jelent a test <b>szelvényezettsége</b>, és hol ismerhető fel emberben?', valasztas: ['A törzs hosszában egyforma szerkezetű részekből épül fel; emberben a bordákon, a csigolyákon és a gerincvelői idegeken látszik', 'A test jobb és bal fele tükörképe egymásnak; a végtagokon látszik', 'A test sejtekből áll; a bőrön látszik', 'A has négy negyedre osztható; a köldökön látszik'], valasz: 'A törzs hosszában egyforma szerkezetű részekből épül fel; emberben a bordákon, a csigolyákon és a gerincvelői idegeken látszik', segitseg: 'Ismétlődő egységek, mint egy gyöngysor.', megoldas: 'A test két felépítési elve: a kétoldali részarányosság (bilaterális szimmetria) és a szelvényezettség. Emberben a szelvényezettség már csak a bordákon, csigolyákon és gerincvelői idegeken ismerhető fel.' },
-      { kerdes: 'Melyik a törzs három részének latin neve (mellkas, has, medence)?', valasztas: ['thorax, abdomen, pelvis', 'thorax, venter, sacrum', 'pectus, abdomen, coxa', 'cavum, abdomen, perineum'], valasz: 'thorax, abdomen, pelvis', szakma: CIMKEK.LATIN, segitseg: 'A mellkasröntgen angolul is „thorax”.', megoldas: 'Mellkas = thorax, has = abdomen, medence = pelvis. A törzs üregét a rekeszizom (diaphragma) mell- és hasüregre osztja; a medenceüreg alsó fala, a két comb közötti terület a gát (perineum).' },
+      { kerdes: 'Melyik a törzs három részének latin neve (mellkas, has, medence)?', valasztas: ['thorax, abdomen, pelvis', 'thorax, venter, sacrum', 'pectus, abdomen, coxa', 'cavum, abdomen, perineum'], valasz: 'thorax, abdomen, pelvis', szakma: CIMKEK.LATIN, segitseg: 'A mellkasröntgent a kórházban „thoraxfelvételnek” is mondják.', megoldas: 'Mellkas = thorax, has = abdomen, medence = pelvis. A törzs üregét a rekeszizom (diaphragma) mell- és hasüregre osztja; a medenceüreg alsó fala, a két comb közötti terület a gát (perineum).' },
       { kerdes: 'Hol van a <b>jugulum</b> (szegycsont feletti árok)?', valasztas: ['A szegycsont markolata felett, a nyak tövénél', 'A köldök alatt', 'A térdhajlatban', 'A hónaljban'], valasz: 'A szegycsont markolata felett, a nyak tövénél', segitseg: 'Itt figyeljük a légcső helyzetét.', megoldas: 'A jugulumban tapintható a légcső. Eltolódása (késői jel) feszülő légmellre utalhat; behúzódása légúti szűkületre.' },
       { kerdes: 'Mit jelentenek a gyakori <b>rövidítések</b>: a., v., m., n.?', valasztas: ['arteria (ütőér), vena (visszér), musculus (izom), nervus (ideg)', 'anterior, ventralis, medialis, nucleus', 'articulatio, valvula, magnus, nodus', 'arteria, vertebra, musculus, nucleus'], valasz: 'arteria (ütőér), vena (visszér), musculus (izom), nervus (ideg)', szakma: CIMKEK.LATIN, segitseg: 'Ér, ér, izom, ideg.', megoldas: 'a. = arteria, v. = vena, m. = musculus, n. = nervus; többes számban: aa., vv., mm., nn. Pl. a. radialis = orsóartéria, n. medianus = középideg. Továbbá: lig. = ligamentum (szalag), art. = articulatio (ízület), gl. = glandula (mirigy).' },
       { kerdes: 'Mit jelentenek a <b>supra</b>, az <b>infra</b> és az <b>inter</b> előtagok?', valasztas: ['Felett, alatt, között', 'Alatt, felett, belül', 'Között, felett, alatt', 'Belül, kívül, mellett'], valasz: 'Felett, alatt, között', szakma: CIMKEK.LATIN, segitseg: 'Inter-net: a gépek „közötti” háló.', megoldas: 'Supra = felett, infra és sub = alatt, inter = között, intra = belül. Pl. musculi intercostales = bordaközi izmok, regio infraclavicularis = kulcscsont alatti tájék.' },
@@ -270,22 +308,22 @@
     ...Tananyag.szint(3, [
       { kerdes: 'Melyik vonalak mentén keressük a mellkasi dekompresszió protokoll szerinti helyeit felnőttnél?', valasztas: ['2. bordaköz a medioclavicularis vonalban, vagy 4–5. bordaköz az elülső/középső hónaljvonalban', 'A köldök mellett', 'A 10. bordaköz hátul', 'A szegycsont közepén'], valasz: '2. bordaköz a medioclavicularis vonalban, vagy 4–5. bordaköz az elülső/középső hónaljvonalban', segitseg: 'Két elfogadott hely.', megoldas: 'A pontos hely a helyi protokolltól függ. A tájékozódási vonalak (medioclavicularis, elülső/középső hónaljvonal) ismerete elengedhetetlen.' },
       { kerdes: 'Hogyan találod meg a <b>2. bordát</b> a mellkason?', valasztas: ['A szegycsont markolata és teste közötti kiemelkedés (Louis-szög) mellett tapintható', 'A köldöktől felfelé számolva', 'A kulcscsont alatt közvetlenül mindig az 1. borda tapintható jól', 'A lapocka csúcsánál'], valasz: 'A szegycsont markolata és teste közötti kiemelkedés (Louis-szög) mellett tapintható', segitseg: 'Angulus sterni.', megoldas: 'A Louis-szögnél a 2. borda ízesül; alatta a 2. bordaköz. Innen lefelé számolhatók a bordaközök.' },
-      { kerdes: 'Hol van a <b>McBurney-pont</b>, és mire utal ott a nyomásérzékenység?', valasztas: ['A köldök és a jobb elülső felső csípőtövis közötti vonal külső harmadánál – vakbélgyulladás', 'A bal bordaív alatt – lépsérülés', 'A köldök felett – gyomorfekély', 'A szegycsont alatt – infarktus'], valasz: 'A köldök és a jobb elülső felső csípőtövis közötti vonal külső harmadánál – vakbélgyulladás', segitseg: 'Jobb alsó negyed.', megoldas: 'A McBurney-pont érzékenysége vakbélgyulladásra utalhat (de nem kizárólagos jel).' },
+      { kerdes: 'Hol van a <b>McBurney-pont</b>, és mire utal ott a nyomásérzékenység?', valasztas: ['A köldök és a jobb elülső felső csípőtövis közötti vonal külső és középső harmadának határán – vakbélgyulladás', 'A bal bordaív alatt – lépsérülés', 'A köldök felett – gyomorfekély', 'A szegycsont alatt – infarktus'], valasz: 'A köldök és a jobb elülső felső csípőtövis közötti vonal külső és középső harmadának határán – vakbélgyulladás', segitseg: 'Jobb alsó negyed.', megoldas: 'A McBurney-pont érzékenysége vakbélgyulladásra utalhat (de nem kizárólagos jel).' },
       { kerdes: 'Melyik testhelyzetet nevezzük <b>„félig ülő” (Fowler)</b> helyzetnek, és kinek előnyös?', valasztas: ['Kb. 45°-ban megemelt felsőtest – nehézlégzéses, szívelégtelen betegnek', 'Fej lejjebb, láb feljebb – mindenkinek', 'Hason fekvés – hányónak', 'Teljesen lapos – fulladónak'], valasz: 'Kb. 45°-ban megemelt felsőtest – nehézlégzéses, szívelégtelen betegnek', segitseg: 'A rekeszizom lejjebb kerül.', megoldas: 'Félig ülő helyzetben könnyebb a légzés, csökken a vénás visszaáramlás (tüdőödémánál előnyös). Alacsony vérnyomásnál viszont óvatosan!' },
-      { kerdes: 'A sérült testén több seb van. Melyik leírás pontos: „seb a bal kézháton, a mutatóujj tövétől 2 cm-re”?', valasztas: ['Bal kéz dorzális oldala, a II. ujj tövétől 2 cm-re proximálisan', 'Bal tenyér, II. ujj', 'Jobb kézhát', 'Bal alkar volaris oldala'], valasz: 'Bal kéz dorzális oldala, a II. ujj tövétől 2 cm-re proximálisan', segitseg: 'Kézhát = dorzális; ujjak számozása a hüvelyktől: I–V.', megoldas: 'Az ujjakat a hüvelykujjtól számozzuk (I–V). Kézhát = dorzális oldal; az ujjtőtől a csukló felé = proximálisan.' },
+      { kerdes: 'A sérült testén több seb van. Melyik leírás pontos erre: „seb a bal kézháton, a mutatóujj tövétől 2 cm-re a csukló felé”?', valasztas: ['Bal kéz dorzális oldala, a II. ujj tövétől 2 cm-re proximálisan', 'Bal tenyér, II. ujj', 'Jobb kézhát', 'Bal alkar volaris oldala'], valasz: 'Bal kéz dorzális oldala, a II. ujj tövétől 2 cm-re proximálisan', segitseg: 'Kézhát = dorzális; ujjak számozása a hüvelyktől: I–V.', megoldas: 'Az ujjakat a hüvelykujjtól számozzuk (I–V). Kézhát = dorzális oldal; az ujjtőtől a csukló felé = proximálisan.' },
       { kerdes: 'Mit jelent a <b>retroperitoneális</b> vérzés, és miért nehéz felismerni?', valasztas: ['A hashártya mögötti térbe (vese, aorta, medence környéke) történő vérzés – a has elöl puha maradhat, sok vér rejtve gyűlhet össze', 'A mellüregbe történő vérzés', 'A bőr alatti vérzés', 'Az agyba történő vérzés'], valasz: 'A hashártya mögötti térbe (vese, aorta, medence környéke) történő vérzés – a has elöl puha maradhat, sok vér rejtve gyűlhet össze', segitseg: 'A hashártya mögött.', megoldas: 'Medencetörés, aorta-aneurizma, vesesérülés: liternyi vér a retroperitoneumban, kevés hasi jellel. Sokkjelekre figyelj!' },
       { kerdes: 'Mi a különbség a <b>viscerális</b> és a <b>parietális</b> hártyalemez között?', valasztas: ['A viscerális a szervet borítja, a parietális az üreg falát béleli', 'Ugyanaz', 'A parietális a szervet borítja', 'Mindkettő a bőrben van'], valasz: 'A viscerális a szervet borítja, a parietális az üreg falát béleli', segitseg: 'Viscera = zsigerek, paries = fal.', megoldas: 'Mellhártya, hashártya, szívburok: mindegyiknek van zsigeri (viscerális) és fali (parietális) lemeze; közöttük vékony rés.' },
-      { kerdes: 'Melyik hasi régióban jelentkezik jellemzően a <b>hólyagtelődés</b> (vizeletrekedés) tapintható terimeként?', valasztas: ['Az alhasban (hypogastrium), a szeméremcsont felett', 'A gyomortájon', 'A bal bordaív alatt', 'A jobb lágyékban'], valasz: 'Az alhasban (hypogastrium), a szeméremcsont felett', segitseg: 'Középen, lent.', megoldas: 'A telt hólyag a szeméremcsont felett, középen tapintható, kopogtatva tompa.' },
+      { kerdes: 'Vizeletrekedésnél a <b>teli húgyhólyag</b> a hasfalon át terimeként tapintható. Melyik hasi tájékon?', valasztas: ['Az alhasban (hypogastrium), a szeméremcsont felett', 'A gyomortájon', 'A bal bordaív alatt', 'A jobb lágyékban'], valasz: 'Az alhasban (hypogastrium), a szeméremcsont felett', segitseg: 'Középen, lent.', megoldas: 'A telt hólyag a szeméremcsont felett, középen tapintható, kopogtatva tompa.' },
       { kerdes: 'A beteget bal oldalra fektetted. Hogyan írod le szakszerűen?', valasztas: ['Bal oldalfekvés (bal laterális decubitus)', 'Jobb oldalfekvés', 'Hason fekvés', 'Trendelenburg-helyzet'], valasz: 'Bal oldalfekvés (bal laterális decubitus)', segitseg: 'Az alul lévő oldal adja a nevét.', megoldas: 'Az oldalfekvést az alul lévő testfél szerint nevezzük: bal oldalfekvés = a bal oldalán fekszik (pl. várandósnál).' },
       { kerdes: 'Egy tenyérnyi (ujjakkal együtt) égett terület a beteg testfelületének kb. hány százaléka?', valasz: 1, egyseg: '%', segitseg: 'A beteg saját tenyere.', megoldas: 'A beteg tenyere ujjakkal együtt kb. a testfelület 1%-a – szórt, kis égéseknél jól használható.' },
-      { kerdes: 'Hány régióra osztja a hasat a részletesebb, kilences felosztás?', valasz: 9, egyseg: 'régió', segitseg: '3 · 3.', megoldas: 'Két függőleges és két vízszintes vonal 9 régiót jelöl ki: jobb/bal hypochondrium, gyomortáj, jobb/bal oldaltáj, köldöktáj, jobb/bal lágyék, alhas.' },
+      { kerdes: 'Hány tájékra osztja a hasat a részletesebb, kilences felosztás?', valasz: 9, egyseg: 'tájék', segitseg: 'Két függőleges és két vízszintes képzelt vonal.', megoldas: 'Két függőleges és két vízszintes képzelt vonal 3 × 3 = 9 tájékot jelöl ki. Felül: jobb és bal bordaív alatti tájék, köztük a gyomortáj. Középen: jobb és bal oldali hastájék, köztük a köldöktáj. Alul: jobb és bal lágyéktájék, köztük az alhas.' },
     ]),
     ...Tananyag.szint(2, [
-      { kerdes: "Melyik anatómiai irányt mutatja a nyíl az ábrán? <small>(1. ábra)</small>", abra: () => Rajz.cimkeNelkul(iranyok(["felso"])), valasztas: ["kraniális (felső, fej felé)", "mediális (a középvonal felé)", "laterális (oldalra, a középvonaltól el)", "proximális (a törzshöz közelebb)"], valasz: "kraniális (felső, fej felé)", szakma: CIMKEK.ABRA, segitseg: "Fej felé: kraniális; középvonal felé: mediális; végtagon a törzstől távolodva: disztális.", megoldas: "A nyíl a(z) kraniális (felső, fej felé) irányt mutatja. Az irányokat mindig az anatómiai alaphelyzetből értjük." },
-      { kerdes: "Melyik anatómiai irányt mutatja a nyíl az ábrán? <small>(2. ábra)</small>", abra: () => Rajz.cimkeNelkul(iranyok(["medialis"])), valasztas: ["mediális (a középvonal felé)", "kraniális (felső, fej felé)", "laterális (oldalra, a középvonaltól el)", "proximális (a törzshöz közelebb)"], valasz: "mediális (a középvonal felé)", szakma: CIMKEK.ABRA, segitseg: "Fej felé: kraniális; középvonal felé: mediális; végtagon a törzstől távolodva: disztális.", megoldas: "A nyíl a(z) mediális (a középvonal felé) irányt mutatja. Az irányokat mindig az anatómiai alaphelyzetből értjük." },
-      { kerdes: "Melyik anatómiai irányt mutatja a nyíl az ábrán? <small>(3. ábra)</small>", abra: () => Rajz.cimkeNelkul(iranyok(["lateralis"])), valasztas: ["laterális (oldalra, a középvonaltól el)", "kraniális (felső, fej felé)", "mediális (a középvonal felé)", "proximális (a törzshöz közelebb)"], valasz: "laterális (oldalra, a középvonaltól el)", szakma: CIMKEK.ABRA, segitseg: "Fej felé: kraniális; középvonal felé: mediális; végtagon a törzstől távolodva: disztális.", megoldas: "A nyíl a(z) laterális (oldalra, a középvonaltól el) irányt mutatja. Az irányokat mindig az anatómiai alaphelyzetből értjük." },
-      { kerdes: "Melyik anatómiai irányt mutatja a nyíl az ábrán? <small>(4. ábra)</small>", abra: () => Rajz.cimkeNelkul(iranyok(["proximalis"])), valasztas: ["proximális (a törzshöz közelebb)", "kraniális (felső, fej felé)", "mediális (a középvonal felé)", "laterális (oldalra, a középvonaltól el)"], valasz: "proximális (a törzshöz közelebb)", szakma: CIMKEK.ABRA, segitseg: "Fej felé: kraniális; középvonal felé: mediális; végtagon a törzstől távolodva: disztális.", megoldas: "A nyíl a(z) proximális (a törzshöz közelebb) irányt mutatja. Az irányokat mindig az anatómiai alaphelyzetből értjük." },
-      { kerdes: "Melyik anatómiai irányt mutatja a nyíl az ábrán? <small>(5. ábra)</small>", abra: () => Rajz.cimkeNelkul(iranyok(["distalis"])), valasztas: ["disztális (a törzstől távolabb)", "kraniális (felső, fej felé)", "mediális (a középvonal felé)", "laterális (oldalra, a középvonaltól el)"], valasz: "disztális (a törzstől távolabb)", szakma: CIMKEK.ABRA, segitseg: "Fej felé: kraniális; középvonal felé: mediális; végtagon a törzstől távolodva: disztális.", megoldas: "A nyíl a(z) disztális (a törzstől távolabb) irányt mutatja. Az irányokat mindig az anatómiai alaphelyzetből értjük." },
+      { kerdes: 'A nyíl a fejtetőn lévő pontból indul. Melyik anatómiai irányt mutatja? <small>(1. ábra)</small>', abra: () => Rajz.cimkeNelkul(iranyok(['felso'])), valasztas: ['kraniális (felső, fej felé)', 'kaudális (alsó, far felé)', 'mediális (a középvonal felé)', 'laterális (oldalra, a középvonaltól el)'], valasz: 'kraniális (felső, fej felé)', szakma: CIMKEK.ABRA, segitseg: 'Merre mutat a nyíl hegye: a fej vagy a láb felé?', megoldas: 'A nyíl felfelé, a fej felé mutat: kraniális (felső) irány. Az irányokat mindig az anatómiai alaphelyzetből értjük.' },
+      { kerdes: 'A szaggatott vonal a test középvonala. Melyik irányt mutatja a pontból induló nyíl? <small>(2. ábra)</small>', abra: () => Rajz.cimkeNelkul(iranyok(['medialis'])), valasztas: ['mediális (a középvonal felé)', 'laterális (oldalra, a középvonaltól el)', 'kraniális (felső, fej felé)', 'kaudális (alsó, far felé)'], valasz: 'mediális (a középvonal felé)', szakma: CIMKEK.ABRA, segitseg: 'A nyíl a szaggatott vonal felé közeledik, vagy távolodik tőle?', megoldas: 'A nyíl a középvonal felé mutat: mediális irány. Az ellenkezője, a középvonaltól el: laterális.' },
+      { kerdes: 'A szaggatott vonal a test középvonala. Melyik irányt mutatja ez a pontból induló nyíl? <small>(3. ábra)</small>', abra: () => Rajz.cimkeNelkul(iranyok(['lateralis'])), valasztas: ['laterális (oldalra, a középvonaltól el)', 'mediális (a középvonal felé)', 'kraniális (felső, fej felé)', 'kaudális (alsó, far felé)'], valasz: 'laterális (oldalra, a középvonaltól el)', szakma: CIMKEK.ABRA, segitseg: 'A nyíl a szaggatott vonal felé közeledik, vagy távolodik tőle?', megoldas: 'A nyíl a középvonaltól oldalra, kifelé mutat: laterális irány. Az ellenkezője: mediális.' },
+      { kerdes: 'A nyíl a karon, a könyöknél lévő pontból indul, a kar tengelyében. Melyik végtagi irányt mutatja? <small>(4. ábra)</small>', abra: () => Rajz.cimkeNelkul(iranyok(['proximalis'])), valasztas: ['proximális (a törzshöz közelebb)', 'disztális (a törzstől távolabb)', 'laterális (oldalra, a középvonaltól el)', 'kaudális (alsó, far felé)'], valasz: 'proximális (a törzshöz közelebb)', szakma: CIMKEK.ABRA, segitseg: 'Végtagon azt nézzük, hogy a nyíl a törzs felé vagy attól el mutat.', megoldas: 'A nyíl a könyöktől a váll, vagyis a törzs felé mutat: proximális irány. Végtagon a proximális–disztális párt használjuk.' },
+      { kerdes: 'A nyíl a karon, a könyöknél lévő pontból indul, a kar tengelyében. Merre mutat? <small>(5. ábra)</small>', abra: () => Rajz.cimkeNelkul(iranyok(['distalis'])), valasztas: ['disztális (a törzstől távolabb)', 'proximális (a törzshöz közelebb)', 'kraniális (felső, fej felé)', 'mediális (a középvonal felé)'], valasz: 'disztális (a törzstől távolabb)', szakma: CIMKEK.ABRA, segitseg: 'Végtagon azt nézzük, hogy a nyíl a törzs felé vagy attól el mutat.', megoldas: 'A nyíl a könyöktől a csukló felé, a törzstől távolodva mutat: disztális irány. Végtagon a proximális–disztális párt használjuk.' },
     ]),
   ];
 
@@ -310,9 +348,12 @@
           <tr><td>rendszeres (szisztematikus) anatómia</td><td>szervrendszerenként: csonttan, ízülettan, izomtan, értan, zsigertan, idegtan, érzékszervek</td></tr>
           <tr><td>tájanatómia</td><td>testtájanként: az izmok, erek, idegek, zsigerek egymáshoz való viszonyát</td></tr>
           <tr><td>összehasonlító anatómia</td><td>az ember és az állatok szerkezetének összevetését</td></tr>
-          <tr><td>alkalmazott (klinikai) anatómia</td><td>a gyakorlati, orvosi vonatkozásokat – része a röntgenanatómia (és van művészi anatómia is)</td></tr>
-          <tr><td>szövettan (histologia), sejttan (cytologia)</td><td>a szabad szemmel nem látható, mikroszkópos szerkezetet</td></tr>
-          <tr><td>fejlődéstan (embryologia)</td><td>a kialakulást a megtermékenyüléstől a születésig: egyedfejlődés (ontogenesis), törzsfejlődés (phylogenesis)</td></tr>
+          <tr><td>alkalmazott (klinikai) anatómia</td><td>az anatómia gyakorlati, orvosi vonatkozásait</td></tr>
+          <tr><td>röntgenanatómia (az alkalmazott anatómia része)</td><td>a csontokat, a szívet, a tüdőt, valamint a levegővel vagy kontrasztanyaggal feltöltött üreges szervek alakját és helyzetét röntgensugárral</td></tr>
+          <tr><td>művészi anatómia</td><td>a test felszíni formáit különböző testhelyzetekben – képzőművészek számára</td></tr>
+          <tr><td>szövettan (histologia)</td><td>a szabad szemmel nem látható, mikroszkópos szerkezetet</td></tr>
+          <tr><td>sejttan (cytologia, a szövettan önálló része)</td><td>a sejtek mikroszkópos szerkezetét</td></tr>
+          <tr><td>fejlődéstan (embryologia)</td><td>a kialakulást a megtermékenyüléstől a születésig: az egyed fejlődését (ontogenesis), a fajok fejlődését (phylogenesis), és összehasonlító módon a rokon fajokét</td></tr>
         </tbody>
       </table></div>
       <p>Az élettan növény- és állatélettanra tagolódik; az emberélettan az állatélettan része. Külön ágak: munkaélettan, táplálkozás-élettan, összehasonlító élettan. Mindez a <b>biológia</b> része.</p>
@@ -321,14 +362,15 @@
       <ul>
         <li><b>Boncolás (preparálás)</b> késsel, csipesszel – előtte a tetemet <b>10%-os formalinnal</b> konzerválják (az érpályába fecskendezik).</li>
         <li><b>Macerálás</b> (áztatás): a csontokat hetekig langyos vízben áztatják, zsírtalanítják, fehérítik – így készül az összefűzött csontváz.</li>
-        <li><b>Injekciós technika:</b> az erekbe festett, megszilárduló masszát fecskendeznek. <b>Korróziós (szétmarásos) eljárás:</b> utána sósav marja le a lágyrészeket, és csak az érhálózat „öntvénye” marad.</li>
+        <li><b>Injekciós technika:</b> az erekbe festett, megszilárduló masszát fecskendeznek, így az erek jól kipreparálhatók.</li>
+        <li><b>Korróziós (szétmarásos) eljárás:</b> a szerv erébe saválló masszát fecskendeznek, majd sósav marja le a lágyrészeket, és csak az érhálózat „öntvénye” marad – így a legfinomabb hajszálerek is vizsgálhatók.</li>
         <li><b>Röntgen:</b> csontok, valamint kontrasztanyaggal feltöltött üreges szervek és erek – élőben is.</li>
         <li><b>Szövettan:</b> rögzítés, víztelenítés, beágyazás után <b>mikrotommal</b> 5–10 µm vastag metszet, festés, majd <b>mikroszkóp</b>.</li>
       </ul>
       <div class="tetel">
         <b>A mikroszkóp</b>
         <p class="keplet">nagyítás = objektív nagyítása · okulár nagyítása</p>
-        <p><b>Szavakkal:</b> álló részei a talp és az oszlop; mozgó részei a tükör (fényforrás), a kondenzor (gyűjti és a tárgyra irányítja a fényt), a tárgyasztal, a tubus a lencsékkel – a revolveren a tárgylencsék (objektív), felül a szemlencse (okulár) –, valamint a makrométer- (durva) és mikrométercsavar (finom beállítás). Pl. 40-es objektív és 8-as okulár: 320-szoros nagyítás. A fénymikroszkóp kb. 10–1500-szoros, az elektronmikroszkóp több százezerszeres nagyításra képes.</p>
+        <p><b>Szavakkal:</b> álló részei a talp és az oszlop; mozgó részei a tükör (a fényforrás fényét juttatja a mikroszkópba), a kondenzor (gyűjti és a tárgyra irányítja a fényt), a tárgyasztal, a tubus a lencsékkel – a revolveren a tárgylencsék (objektív), felül a szemlencse (okulár) –, valamint a makrométer- (durva) és mikrométercsavar (finom beállítás). Pl. 40-es objektív és 8-as okulár: 320-szoros nagyítás. A fénymikroszkóp kb. 10–1500-szoros, az elektronmikroszkóp több százezerszeres nagyításra képes.</p>
       </div>
       <p>💬 A mai mikroszkópokban a tükör helyett általában beépített lámpa adja a fényt.</p>
       <p>Az <b>élettan</b> fő módszere a <b>kísérlet</b>: műtéti módszer (szerv eltávolítása, ér lekötése, ideg átvágása – kiesési tünetek), izolált túlélő szervek, gyógyszerkísérleti (biokémiai), fizikai módszerek, szervbeültetés és -átültetés.</p>
@@ -353,7 +395,7 @@
           <tr><td>proximalis</td><td>a törzshöz közel (végtagon)</td><td>distalis: a törzstől távol</td></tr>
           <tr><td>superficialis</td><td>felületi</td><td>profundus: mély</td></tr>
           <tr><td>externus</td><td>külső</td><td>internus: belső</td></tr>
-          <tr><td>palmáris</td><td>tenyéri</td><td>plantáris: talpi</td></tr>
+          <tr><td>palmaris</td><td>tenyéri</td><td>plantaris: talpi</td></tr>
         </tbody>
       </table></div>
       <p>💡 <b>Jobb és bal</b> (dexter, sinister) mindig a <b>beteg</b> szemszögéből! A cranialis–caudalis kifejezőbb, mint a superior–inferior, mert a testhez kötött: fekvő betegnél is egyértelmű.</p>
@@ -363,19 +405,21 @@
         <li><b>Középsík (mediánsík):</b> a középvonalban elölről hátra halad, jobb és bal testfélre oszt.</li>
         <li><b>Nyílirányú (sagittalis) síkok:</b> a középsíkkal párhuzamosak.</li>
         <li><b>Homloksík (frontalis):</b> a homlokkal párhuzamos, elülső és hátsó részre oszt.</li>
-        <li><b>Vízszintes (horizontalis, transzverzális) sík:</b> az előző kettőre merőleges, felső és alsó részre oszt (CT-szeletek).</li>
+        <li><b>Vízszintes (horizontalis, transversalis) sík:</b> az előző kettőre merőleges, felső és alsó részre oszt (CT-szeletek).</li>
       </ul>
 
       <h3>Testüregek</h3>
+      <p>A törzs nagy üregét (testüreg) a <b>rekeszizom</b> (diaphragma) osztja mellüregre és hasüregre; alul a medenceüreg csatlakozik hozzá.</p>
       <ul>
-        <li><b>Koponyaüreg:</b> agy. <b>Gerinccsatorna:</b> gerincvelő.</li>
-        <li><b>Mellüreg:</b> tüdők, szív (a gátorban), nagyerek. A törzs nagy üregét a <b>rekeszizom</b> (diaphragma) osztja mell- és hasüregre.</li>
-        <li><b>Hasüreg:</b> gyomor, belek, máj, lép. Mögötte (<b>retroperitoneálisan</b>): vesék, aorta.</li>
+        <li><b>Koponyaüreg:</b> agy.</li>
+        <li><b>Gerinccsatorna:</b> gerincvelő.</li>
+        <li><b>Mellüreg:</b> tüdők, szív (a gátorban), nagy erek.</li>
+        <li><b>Hasüreg:</b> gyomor, belek, máj, lép. A hashártya mögött (<b>retroperitoneálisan</b>): vesék, hasi aorta.</li>
         <li><b>Medenceüreg:</b> húgyhólyag, végbél, belső nemi szervek. Erős csontok veszik körül; alsó fala a két comb közötti terület, a <b>gát</b> (perineum).</li>
       </ul>
 
       <h3>Anatómiai szakkifejezések</h3>
-      <p>Az anatómiai képleteket nemzetközileg egységes <b>latin</b> nevekkel jelöljük. Az anatómiai nevezéktan (nómenklatúra) kb. <b>5000</b> fogalmat tartalmaz; a tankönyv szerint érvényeset 1955-ben Párizsban állították össze (<b>Párizsi Nomina Anatomica, PNA</b>).</p>
+      <p>Az anatómiai képleteket nemzetközileg egységes <b>latin</b> nevekkel jelöljük. Az anatómiai nevezéktan (nómenklatúra) kb. <b>5000</b> fogalmat tartalmaz. A tankönyv írásakor érvényes nevezéktant 1955-ben Párizsban állították össze (<b>Párizsi Nomina Anatomica, PNA</b>).</p>
       <p>💬 Ma a nemzetközileg elfogadott nevezéktan a <b>Terminologia Anatomica</b> (1998, átdolgozva 2019); a legtöbb latin név ugyanaz maradt.</p>
       <div class="tabla-keret"><table>
         <thead><tr><th>Latin</th><th>Magyar</th><th>Latin</th><th>Magyar</th></tr></thead>
@@ -404,7 +448,7 @@
       <div class="tetel">
         <b>Hasi negyedek</b>
         <p class="keplet">Két képzelt vonal a köldökön át: függőleges és vízszintes</p>
-        <p><b>Szavakkal:</b> jobb felső (máj, epehólyag), bal felső (gyomor, lép), jobb alsó (féregnyúlvány), bal alsó (szigmabél). A köldök fölötti középső terület az epigasztrium, alatta a hipogasztrium.</p>
+        <p><b>Szavakkal:</b> jobb felső (máj, epehólyag), bal felső (gyomor, lép), jobb alsó (féregnyúlvány), bal alsó (szigmabél). A köldök fölötti középső terület a gyomortáj (epigastrium), a köldök alatti az alhas (hypogastrium).</p>
       </div>
 
       <h3>A gyakorlatban</h3>
@@ -415,8 +459,19 @@
       </div>
 
       <details class="tobbet">
-        <summary>Ha többet szeretnél tudni: kilenc hasi régió</summary>
-        <p>A has finomabb felosztása kilenc régióra: felül jobb bordaív alatti tájék – epigasztrium – bal bordaív alatti tájék; középen jobb oldali tájék – köldöktáj – bal oldali tájék; alul jobb csípőtáj (lágyék) – hipogasztrium – bal csípőtáj.</p>
+        <summary>Ha többet szeretnél tudni: a has kilenc tájéka</summary>
+        <p>A hasat két függőleges és két vízszintes képzelt vonal osztja 3 × 3 = 9 tájékra. A függőleges vonalak a kulcscsontok
+          közepétől lefelé húzott vonalak, a vízszintesek a bordaívek alsó szélén, illetve a két elülső felső csípőtövisen
+          haladnak át. A rajz és a táblázat úgy áll, ahogy a beteget szemből látod: a beteg jobb oldala a bal oldalon van.</p>
+        <div class="rajz">${kilencTajek()}</div>
+        <div class="tabla-keret"><table>
+          <thead><tr><th></th><th>A beteg jobb oldala</th><th>Középen</th><th>A beteg bal oldala</th></tr></thead>
+          <tbody>
+            <tr><th>Felül</th><td>jobb bordaív alatti tájék (regio hypochondriaca dextra)</td><td>gyomortáj (epigastrium)</td><td>bal bordaív alatti tájék (regio hypochondriaca sinistra)</td></tr>
+            <tr><th>Középen</th><td>jobb oldali hastájék (regio lateralis dextra)</td><td>köldöktáj (regio umbilicalis)</td><td>bal oldali hastájék (regio lateralis sinistra)</td></tr>
+            <tr><th>Alul</th><td>jobb lágyéktájék (regio inguinalis dextra)</td><td>alhas, szeméremtájék (hypogastrium, regio pubica)</td><td>bal lágyéktájék (regio inguinalis sinistra)</td></tr>
+          </tbody>
+        </table></div>
       </details>
 
       <h3>Gyakori hibák</h3>

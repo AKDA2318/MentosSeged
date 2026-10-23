@@ -12,7 +12,7 @@
     const icf = (viz * 2) / 3;
     const ecf = viz / 3;
     const sav = (x, h, o, t1, t2) =>
-      `<rect x="${x}" y="${180 - h}" width="70" height="${h}" class="${o}"/>` + Rajz.szoveg(x + 35, 192, t1, 'kicsi') + Rajz.szoveg(x + 35, 170 - h, t2, 'kicsi');
+      `<rect x="${x}" y="${180 - h}" width="70" height="${h}" class="${o}" style="stroke: var(--szoveg); stroke-width: 1.5"/>` + Rajz.szoveg(x + 35, 192, t1, 'kicsi') + Rajz.szoveg(x + 35, 170 - h, t2, 'kicsi');
     const s = 150 / viz;
     return Rajz.svg(
       320,
@@ -28,15 +28,15 @@
   // ---- Animáció ----
   const animacio = [
     { felirat: 'A test legkisebb élő egysége a <b>sejt</b> (cellula). Általában 10–30 µm-es, csak mikroszkóppal látható; kb. 30 billió (30 000 milliárd) sejtből állunk.', rajz: () => kartya('🔬', 'A sejt') },
-    { felirat: 'A <b>sejthártya</b> körülveszi és védi a sejtet, és szabályozza, mi juthat be és ki. A <b>sejtmagban</b> (nucleus) van az örökítőanyag (DNS) – a testi sejtekben 46 kromoszómába rendezve.', rajz: () => kartya('⭕🧬', 'Sejthártya és sejtmag') },
+    { felirat: 'A <b>sejthártya</b> körülveszi és védi a sejtet, és szabályozza, mi juthat be és ki. A <b>sejtmagban</b> (nucleus) van az örökítőanyag (DNS); osztódáskor ez a testi sejtekben 46 kromoszómába rendeződik.', rajz: () => kartya('⭕🧬', 'Sejthártya és sejtmag') },
     { felirat: 'A <b>mitokondrium</b> a sejt „erőműve”: oxigén segítségével energiát (ATP-t) termel. Oxigén nélkül sokkal kevesebb energia keletkezik, és <b>tejsav</b> halmozódik fel.', rajz: () => kartya('⚡🔋', 'Mitokondrium = erőmű') },
     { felirat: 'A hasonló sejtek <b>szöveteket</b> alkotnak: hám-, kötő- és támasztó-, izom- és idegszövet. A szövetekből épülnek fel a <b>szervek</b>.', rajz: () => kartya('🧱', 'Sejt → szövet → szerv → szervrendszer') },
-    { felirat: 'A <b>homeosztázis</b> a belső környezet állandósága: testhő, vércukor, pH, víz- és sóháztartás. Ha felborul (pl. láz, kiszáradás, savasodás), a szervek működése romlik.', rajz: () => kartya('⚖️', 'Homeosztázis') },
+    { felirat: 'A <b>homeosztázis</b> a belső környezet állandósága: testhő, vércukor, pH, víz- és sóháztartás. Ha felborul (pl. kihűlés, kiszáradás, savasodás), a szervek működése romlik.', rajz: () => kartya('⚖️', 'Homeosztázis') },
   ];
 
   // ---- Interaktív rész: folyadékterek ----
   const interaktiv = Rajz.interaktiv({
-    csuszkak: [{ k: 'kg', cim: 'Testtömeg', min: 10, max: 120, lepes: 5, ertek: 70, egyseg: 'kg' }],
+    csuszkak: [{ k: 'kg', cim: 'Testtömeg', min: 40, max: 120, lepes: 5, ertek: 70, egyseg: 'kg' }],
     frissit: ({ kg }) => ({
       rajz: folyadek(kg),
       szamitas: `<p>Összes víz: ${kg} · 0,6 = <b>${sz(kg * 0.6, 1)} l</b> (felnőttnél kb. 60%)</p>
@@ -48,12 +48,12 @@
 
   // ---- Feladatok ----
   const SZOVET = ['Hámszövet', 'Kötő- és támasztószövet', 'Izomszövet', 'Idegszövet'];
-  const szovet = (kerdes, valasz, megoldas) => ({
+  const szovet = (kerdes, valasz, segitseg, megoldas) => ({
     kerdes,
     valasztas: SZOVET,
     valasz,
     fixSorrend: true,
-    segitseg: 'Hám: felszínt borít. Kötő-támasztó: összeköt, megtart (csont, porc, vér, zsír). Izom: összehúzódik. Ideg: ingerületet vezet.',
+    segitseg,
     megoldas,
   });
 
@@ -73,16 +73,16 @@
         segitseg: 'A sejt „irányítóközpontja”.',
         megoldas: 'A DNS főként a sejtmagban van; ez irányítja a sejt működését.',
       },
-      szovet('Melyik szövettípus borítja a test felszínét (bőr) és béleli a szerveket (nyálkahártya)?', 'Hámszövet', 'A hámszövet borít és bélel: bőr felhámja, nyálkahártyák, mirigyek.'),
-      szovet('Melyik szövettípusba tartozik a csont, a porc és a vér?', 'Kötő- és támasztószövet', 'A csont, porc, ín, zsír és a vér is kötő- és támasztószövet.'),
-      szovet('Melyik szövet képes összehúzódni?', 'Izomszövet', 'Az izomszövet összehúzódásra képes: váz-, sima- és szívizom.'),
-      szovet('Melyik szövet vezeti az ingerületet?', 'Idegszövet', 'Az idegszövet (idegsejtek) ingerületet hoz létre és vezet.'),
+      szovet('Melyik szövettípus borítja a test felszínét (bőr) és béleli a szerveket (nyálkahártya)?', 'Hámszövet', 'Ebből a szövetből épülnek fel a mirigyek is.', 'A hámszövet borít és bélel: bőr felhámja, nyálkahártyák, mirigyek.'),
+      szovet('Melyik szövettípusba tartozik a csont, a porc és a vér?', 'Kötő- és támasztószövet', 'Sok sejtközötti állomány jellemzi; a vérben ez a plazma.', 'A csont, porc, ín, zsír és a vér is kötő- és támasztószövet.'),
+      szovet('Melyik szövet képes összehúzódni?', 'Izomszövet', 'Sejtjeiben miofibrillumok rövidülnek meg.', 'Az izomszövet összehúzódásra képes: váz-, sima- és szívizom.'),
+      szovet('Melyik szövet vezeti az ingerületet?', 'Idegszövet', 'Egysége a neuron.', 'Az idegszövet (idegsejtek) ingerületet hoz létre és vezet.'),
       {
         kerdes: 'Mit jelent a <b>homeosztázis</b>?',
         valasztas: ['A belső környezet (testhő, vércukor, pH, víz) állandósága', 'A sejtek osztódása', 'A vérzés megállása', 'Az izmok növekedése'],
         valasz: 'A belső környezet (testhő, vércukor, pH, víz) állandósága',
         segitseg: '„homeo” = hasonló, „sztázis” = állapot.',
-        megoldas: 'Homeosztázis: a belső környezet viszonylagos állandósága, amit a szervezet szabályozó rendszerei (ideg-, hormonrendszer) tartanak fenn.',
+        megoldas: 'Homeosztázis: a belső környezet viszonylagos állandósága, amelyet a szervezet szabályozó rendszerei (ideg- és hormonrendszer) tartanak fenn.',
       },
       {
         kerdes: 'Kb. hány százaléka víz egy felnőtt testtömegének?',
@@ -93,9 +93,9 @@
       },
       {
         kerdes: 'Mi keletkezik a sejtekben, ha nincs elég oxigén (anaerob anyagcsere)?',
-        valasztas: ['Tejsav (laktát), és kevesebb energia', 'Több energia', 'Oxigén', 'Cukor'],
-        valasz: 'Tejsav (laktát), és kevesebb energia',
-        segitseg: 'Az izomlázért is felelős anyag.',
+        valasztas: ['Tejsav (laktát) és kevesebb energia', 'Több energia', 'Oxigén', 'Cukor'],
+        valasz: 'Tejsav (laktát) és kevesebb energia',
+        segitseg: 'Megerőltető munkánál az izomban is felhalmozódik.',
         megoldas: 'Oxigén nélkül a sejt csak kevés energiát tud termelni, és tejsav keletkezik. Sokkban ez a vér savasodásához (acidózis) vezet.',
       },
       {
@@ -120,7 +120,7 @@
         valasztas: ['7,35 alatt', '7,45 fölött', '7,40-nél', '8 fölött'],
         valasz: '7,35 alatt',
         segitseg: 'Savas = alacsonyabb pH.',
-        megoldas: 'Acidózis: pH < 7,35 (pl. sokkban, ketoacidózisban, légzési elégtelenségben). Alkalózis: pH > 7,45 (pl. hiperventiláció).',
+        megoldas: 'Acidózis: a pH 7,35 alatt van (pl. sokkban, ketoacidózisban, légzési elégtelenségben). Alkalózis: a pH 7,45 fölött van (pl. hiperventilációban).',
       },
       {
         kerdes: 'Mi a <b>diffúzió</b>?',
@@ -161,7 +161,7 @@
         megoldas: 'Simaizom: az üreges belső szervek és az erek falában. Asztmában a hörgők simaizma görcsöl.',
       },
       {
-        kerdes: 'Egy 70 kg-os felnőtt össz-víztartalmának (42 l) mekkora része van a sejteken <b>belül</b> (⅔)?',
+        kerdes: 'Egy 70 kg-os felnőtt teljes víztartalma 42 l. Ebből mennyi van a sejteken <b>belül</b> (⅔)?',
         valasz: 28,
         egyseg: 'liter',
         szakma: CIMKEK.SZAMOLAS,
@@ -169,7 +169,7 @@
         megoldas: '42 · 2 : 3 = 28 liter.',
       },
       {
-        kerdes: 'Ugyanennek a betegnek mennyi víz van a sejteken <b>kívül</b> (⅓)?',
+        kerdes: 'Egy 70 kg-os felnőtt teljes víztartalma 42 l. Ebből mennyi van a sejteken <b>kívül</b> (⅓)?',
         valasz: 14,
         egyseg: 'liter',
         szakma: CIMKEK.SZAMOLAS,
@@ -220,7 +220,7 @@
         valasz: 4,
         egyseg: 'liter',
         szakma: CIMKEK.SZAMOLAS,
-        segitseg: 'Víz: 80 · 0,6. Sejten kívül: : 3. Plazma: : 4.',
+        segitseg: 'Előbb a teljes víz (80 · 0,6), ennek harmada a sejten kívüli, annak negyede a plazma.',
         megoldas: 'Víz: 48 l. Sejten kívül: 16 l. Plazma: 16 : 4 = 4 l.',
       },
       {
@@ -263,12 +263,12 @@
       {
         kerdes: 'A légzési elégtelenségben lévő beteg vére miért savasodik?',
         valasztas: [
-          'Mert nem tudja kilélegezni a CO₂-t, ami szénsavként savasítja a vért',
+          'Mert nem tudja kilélegezni a CO₂-t, amely szénsavként savasítja a vért',
           'Mert túl sok oxigént vesz fel',
           'Mert lúgot termel',
           'Nem savasodik',
         ],
-        valasz: 'Mert nem tudja kilélegezni a CO₂-t, ami szénsavként savasítja a vért',
+        valasz: 'Mert nem tudja kilélegezni a CO₂-t, amely szénsavként savasítja a vért',
         segitseg: 'A hiperventiláció ellentéte.',
         megoldas: 'Elégtelen légzésnél a CO₂ felhalmozódik, a vér savasodik (légzési acidózis). Ez aluszékonyságot, zavartságot okoz.',
       },
@@ -280,7 +280,7 @@
         megoldas: 'Az agy idegsejtjei a legérzékenyebbek: néhány perc oxigénhiány után maradandóan károsodnak. Ezért kell a szívmegállásnál azonnal kompresszióval keringést biztosítani.',
       },
       {
-        kerdes: 'Miért magas a testhő (láz) a homeosztázis szempontjából?',
+        kerdes: 'Lázban miért marad tartósan magas a testhő, bár a hőszabályozás (homeosztázis) működik?',
         valasztas: [
           'Mert fertőzéskor az agy hőközpontja magasabb „beállítást” kap, és a test ehhez szabályoz (didergés, érösszehúzódás)',
           'Mert a homeosztázis megszűnik',
@@ -313,21 +313,21 @@
       },
     ]),
     ...Tananyag.szint(1, [
-      { kerdes: 'Mi az élő szervezet legkisebb önálló egysége?', valasztas: ['A sejt', 'A szerv', 'Az atom', 'A szövet'], valasz: 'A sejt', segitseg: 'Mindent sejtek építenek fel.', megoldas: 'Sejt → szövet → szerv → szervrendszer → szervezet.' },
-      { kerdes: 'Mi a <b>szövet</b>?', valasztas: ['Hasonló felépítésű és működésű sejtek csoportja', 'Egyetlen sejt', 'Egy szerv', 'A vér folyékony része'], valasz: 'Hasonló felépítésű és működésű sejtek csoportja', segitseg: 'Pl. izomszövet.', megoldas: 'Négy alapszövet: hámszövet, kötő- és támasztószövet, izomszövet, idegszövet.' },
+      { kerdes: 'Mi az élő szervezet legkisebb alaki és működési egysége?', valasztas: ['A sejt', 'A szerv', 'Az atom', 'A szövet'], valasz: 'A sejt', segitseg: 'Mindent sejtek építenek fel.', megoldas: 'Sejt → szövet → szerv → szervrendszer → szervezet.' },
+      { kerdes: 'Mi a <b>szövet</b>?', valasztas: ['Azonos alakú és működésű sejtek összessége', 'Egyetlen sejt', 'Egy szerv', 'A vér folyékony része'], valasz: 'Azonos alakú és működésű sejtek összessége', segitseg: 'Pl. izomszövet.', megoldas: 'A szövetet – a hám kivételével – a sejtek mellett sejtközötti állomány is alkotja. Négy alapszövet: hámszövet, kötő- és támasztószövet, izomszövet, idegszövet.' },
       { kerdes: 'Melyik a négy alapszövet?', valasztas: ['Hám-, kötő- és támasztó-, izom-, idegszövet', 'Csont, vér, bőr, zsír', 'Szív, tüdő, máj, vese', 'Sejt, mag, hártya, plazma'], valasz: 'Hám-, kötő- és támasztó-, izom-, idegszövet', segitseg: 'Borít, összeköt, mozgat, irányít.', megoldas: 'Hám: borít, bélel; kötő- és támasztó: összeköt, tart (csont, porc, vér is); izom: mozgat; ideg: ingerületet vezet.' },
-      { kerdes: 'Mit határol a <b>sejthártya</b>?', valasztas: ['A sejtet a környezetétől – és szabályozza, mi juthat be és ki', 'Csak a sejtmagot', 'A szerveket', 'Az ereket'], valasz: 'A sejtet a környezetétől – és szabályozza, mi juthat be és ki', segitseg: 'Kapuőr.', megoldas: 'A sejthártya féligáteresztő: a víz, a gázok könnyen átjutnak, más anyagok csak szállítók vagy csatornák segítségével.' },
-      { kerdes: 'Melyik sejtalkotó végzi a <b>fehérjeszintézist</b>?', valasztas: ['Riboszóma', 'Mitokondrium', 'Golgi-készülék', 'Sejtközpont (centriolum)'], valasz: 'Riboszóma', segitseg: 'Apró, ribonukleinsav-tartalmú szemcsék az endoplazmás hálózaton.', megoldas: 'A riboszómák (csak elektronmikroszkóppal láthatók) az endoplazmás hálózaton ülnek, és fehérjét szintetizálnak. Mitokondrium: energia; Golgi-készülék: váladékképzés; sejtközpont: sejtosztódás.' },
+      { kerdes: 'Mit határol a <b>sejthártya</b>?', valasztas: ['A sejtet a környezetétől; szabályozza, mi juthat be és ki', 'Csak a sejtmagot', 'A szerveket', 'Az ereket'], valasz: 'A sejtet a környezetétől; szabályozza, mi juthat be és ki', segitseg: 'Kapuőr.', megoldas: 'A sejthártya féligáteresztő: a víz, a gázok könnyen átjutnak, más anyagok csak szállítók vagy csatornák segítségével.' },
+      { kerdes: 'Melyik sejtalkotó végzi a <b>fehérjeszintézist</b>?', valasztas: ['Riboszóma', 'Mitokondrium', 'Golgi-készülék', 'Sejtközpont (centriolumok)'], valasz: 'Riboszóma', segitseg: 'Csak elektronmikroszkóppal látható szemcsék az endoplazmás hálózaton.', megoldas: 'A riboszómák (csak elektronmikroszkóppal láthatók) az endoplazmás hálózaton ülnek, és fehérjét szintetizálnak. Mitokondrium: energia; Golgi-készülék: váladékképzés; sejtközpont: sejtosztódás.' },
       { kerdes: 'Melyik a három izomszövet-fajta?', valasztas: ['Simaizom, harántcsíkolt izom, szívizom', 'Vázizom, ínszövet, porc', 'Simaizom, zsírszövet, szívizom', 'Bőrizom, csontizom, bélizom'], valasz: 'Simaizom, harántcsíkolt izom, szívizom', segitseg: 'Szerkezetük és viselkedésük alapján.', megoldas: 'Simaizom (orsó alakú sejtek, akaratlan), harántcsíkolt izom (vázizmok, akaratlagos), szívizom (különleges harántcsíkolt izom, akaratlan).' },
-      { kerdes: 'Mi a <b>fagocitózis</b>?', valasztas: ['Szilárd részecskék (pl. baktériumok) bekebelezése a sejtbe', 'A sejt kettéosztódása', 'A víz átáramlása a sejthártyán', 'A sejt elhalása'], valasz: 'Szilárd részecskék (pl. baktériumok) bekebelezése a sejtbe', segitseg: 'Fagein = enni.', megoldas: 'Fagocitózis: a falósejtek (fagociták, pl. egyes fehérvérsejtek, makrofágok) bekebelezik a kórokozókat, idegen részecskéket. Emberben ez már a védekezést szolgálja, nem a táplálkozást.' },
+      { kerdes: 'Mi a <b>fagocitózis</b>?', valasztas: ['Szilárd részecskék (pl. baktériumok) bekebelezése a sejtbe', 'A sejt kettéosztódása', 'A víz átáramlása a sejthártyán', 'A sejt elhalása'], valasz: 'Szilárd részecskék (pl. baktériumok) bekebelezése a sejtbe', segitseg: '„phagein” = enni.', megoldas: 'Fagocitózis: a falósejtek (fagociták, pl. egyes fehérvérsejtek, makrofágok) bekebelezik a kórokozókat, idegen részecskéket. Emberben ez már a védekezést szolgálja, nem a táplálkozást.' },
       { kerdes: 'Mi a „belső környezet”?', valasztas: ['A sejteket körülvevő folyadék (szövetnedv, vérplazma, nyirok)', 'A gyomor tartalma', 'A szoba hőmérséklete', 'A tüdő levegője'], valasz: 'A sejteket körülvevő folyadék (szövetnedv, vérplazma, nyirok)', segitseg: 'Ebben „úsznak” a sejtek.', megoldas: 'A belső környezet állandóságát (hőmérséklet, pH, só, víz, cukor) tartja fenn a homeosztázis.' },
-      { kerdes: 'Melyik ion van a legnagyobb mennyiségben a sejteken <b>kívül</b>?', valasztas: ['Nátrium', 'Kálium', 'Vas', 'Jód'], valasz: 'Nátrium', segitseg: 'Konyhasó.', megoldas: 'Sejten kívül a nátrium, sejten belül a kálium a fő ion. Ezért izotóniás a 0,9%-os NaCl (sóoldat) a sejten kívüli térhez.' },
-      { kerdes: 'Melyik ion van a legnagyobb mennyiségben a sejteken <b>belül</b>?', valasztas: ['Kálium', 'Nátrium', 'Kalcium', 'Klorid'], valasz: 'Kálium', segitseg: 'Sejtszétesésnél kiszabadul.', megoldas: 'A kálium főleg a sejtekben van. Ha sok sejt pusztul (crush, égés), a kálium a vérbe áramlik → hiperkalémia.' },
+      { kerdes: 'Melyik ion van a legnagyobb mennyiségben a sejteken <b>kívül</b>?', valasztas: ['Nátrium', 'Kálium', 'Vas', 'Jód'], valasz: 'Nátrium', segitseg: 'Konyhasó.', megoldas: 'Sejten kívül a nátrium, sejten belül a kálium a fő ion. Ezért a 0,9%-os NaCl-oldat (fiziológiás sóoldat) főleg a sejteken kívüli térben oszlik el.' },
+      { kerdes: 'Melyik ion van a legnagyobb mennyiségben a sejteken <b>belül</b>?', valasztas: ['Kálium', 'Nátrium', 'Kalcium', 'Klorid'], valasz: 'Kálium', segitseg: 'Sejtszétesésnél kiszabadul.', megoldas: 'A kálium főleg a sejtekben van. Ha sok sejt pusztul (crush-szindróma, égés), a kálium a vérbe áramlik → hiperkalémia.' },
       { kerdes: 'Hány kromoszóma van egy emberi testi sejt magjában?', valasz: 46, egyseg: 'db', segitseg: '23 pár.', megoldas: 'A testi sejtekben 46 kromoszóma van (23 pár), az ivarsejtekben ennek fele, 23. Megtermékenyítéskor 23 + 23 = 46 áll helyre.' },
-      { kerdes: 'Mi az idegszövet szerkezeti és működési egysége?', valasztas: ['A neuron (idegsejt nyúlványaival és végződéseivel)', 'Az izomrost', 'A hámsejt', 'Az osteon'], valasz: 'A neuron (idegsejt nyúlványaival és végződéseivel)', segitseg: 'Neuro- = ideg.', megoldas: 'Az idegszövet egysége a neuron: idegsejt + idegrost + idegvégződés. Az idegszövet ingereket fog fel, ingerületet hoz létre és vezet tovább.' },
+      { kerdes: 'Mi az idegszövet szerkezeti és működési egysége?', valasztas: ['A neuron (idegsejt nyúlványaival és végződéseivel)', 'Az izomrost', 'A hámsejt', 'Az osteon'], valasz: 'A neuron (idegsejt nyúlványaival és végződéseivel)', segitseg: 'Az idegrendszer nagyszámú ilyen egységből épül fel.', megoldas: 'Az idegszövet egysége a neuron: idegsejt + idegrost + idegvégződés. Az idegszövet ingereket fog fel, ingerületet hoz létre és vezet tovább.' },
     ]),
     ...Tananyag.szint(2, [
-      { kerdes: 'Mi történik a vörösvértesttel <b>hipotóniás</b> (a vérnél hígabb) oldatban?', valasztas: ['Víz áramlik bele, megduzzad, szétpukkanhat (hemolízis)', 'Összezsugorodik', 'Nem változik', 'Megalvad'], valasz: 'Víz áramlik bele, megduzzad, szétpukkanhat (hemolízis)', segitseg: 'A víz a töményebb oldal felé áramlik.', megoldas: 'Ozmózis: a víz a hígabb oldatból a töményebb felé áramlik. Hipotóniás oldatban a sejt megduzzad.' },
+      { kerdes: 'Mi történik a vörösvértesttel <b>hipotóniás</b> (a vérnél hígabb) oldatban?', valasztas: ['Víz áramlik bele, megduzzad, szétpattanhat (hemolízis)', 'Összezsugorodik', 'Nem változik', 'Megalvad'], valasz: 'Víz áramlik bele, megduzzad, szétpattanhat (hemolízis)', segitseg: 'A víz a töményebb oldal felé áramlik.', megoldas: 'Ozmózis: a víz a hígabb oldatból a töményebb felé áramlik. Hipotóniás oldatban a sejt megduzzad.' },
       { kerdes: 'Mi történik a sejttel <b>hipertóniás</b> (töményebb) oldatban?', valasztas: ['Víz áramlik ki belőle, összezsugorodik', 'Megduzzad', 'Szétpukkan', 'Nem változik'], valasz: 'Víz áramlik ki belőle, összezsugorodik', segitseg: 'A víz kifelé megy.', megoldas: 'Hipertóniás oldatban a sejt vizet veszít. Ezt használják ki pl. agyödémánál a hipertóniás sóoldattal (orvosi elrendelésre).' },
       { kerdes: 'Melyik a hámszövet <b>működés</b> szerinti felosztása?', valasztas: ['Fedő- (védő-), érzék-, felszívó- és mirigyhám', 'Lap-, köb- és hengerhám', 'Üveg-, rugalmas és rostos hám', 'Sima, harántcsíkolt és szívhám'], valasz: 'Fedő- (védő-), érzék-, felszívó- és mirigyhám', segitseg: 'Véd, érzékel, felszív, váladékot termel.', megoldas: 'Fedőhám: pl. a bőr szaruréteges laphámja, a légutak csillószőrös hengerhámja. Érzékhám: érzékszervekben. Felszívóhám: vékonybél. Mirigyhám: a mirigyek építőszövete.' },
       { kerdes: 'Mi a <b>pozitív visszacsatolás</b>, és miért veszélyes betegségben?', valasztas: ['Az eltérés tovább erősíti önmagát – ördögi kör alakulhat ki (pl. sokk, halálos triász)', 'Az eltérést kiegyenlíti', 'Mindig hasznos', 'Nem létezik'], valasz: 'Az eltérés tovább erősíti önmagát – ördögi kör alakulhat ki (pl. sokk, halálos triász)', segitseg: 'Ördögi kör.', megoldas: 'Pl. vérzés → kihűlés → rosszabb alvadás → több vérzés. Élettani példa: szülés (oxitocin). A mentő feladata az ördögi körök megszakítása.' },
@@ -336,8 +336,8 @@
       { kerdes: 'Miért nem adunk <b>5%-os glükózoldatot</b> folyadékpótlásra vérzéses sokkban?', valasztas: ['Mert a cukor elfogy, a maradék „szabad víz” a sejtekbe szétoszlik – alig marad az erekben', 'Mert túl sós', 'Mert megalvasztja a vért', 'Mert drága'], valasz: 'Mert a cukor elfogy, a maradék „szabad víz” a sejtekbe szétoszlik – alig marad az erekben', segitseg: 'Az összes testvízbe oszlik.', megoldas: 'Az 5%-os glükóz a cukor felhasználása után gyakorlatilag víz: az egész testvízben eloszlik, csak kb. 1/12-e marad az erekben. Fejsérültnél agyödémát is ronthat.' },
       { kerdes: 'Hogyan osztjuk fel a hámszövetet a sejtek <b>alakja</b> szerint?', valasztas: ['Laphám, köbhám, hengerhám', 'Fedőhám, érzékhám, mirigyhám', 'Egyrétegű és többrétegű hám', 'Felhám, irha, bőralja'], valasz: 'Laphám, köbhám, hengerhám', segitseg: 'Lapos, kocka, henger alakú sejtek.', megoldas: 'Alak szerint: laphám, köbhám, hengerhám; a rétegek száma szerint: egyrétegű és többrétegű hám (pl. a bőr többrétegű elszarusodó laphám). Működés szerint: fedő-, érzék-, felszívó- és mirigyhám.' },
       { kerdes: 'Miért gyógyul lassan a porc (pl. térdsérülés után)?', valasztas: ['Mert nincsenek benne erek – a tápanyag lassan jut el a sejtekhez', 'Mert túl sok benne az ér', 'Mert idegek vannak benne', 'Gyorsan gyógyul'], valasz: 'Mert nincsenek benne erek – a tápanyag lassan jut el a sejtekhez', segitseg: 'Érmentes szövet.', megoldas: 'A porc ér nélküli, ezért lassan regenerálódik. A csont viszont jól erezett, ezért gyógyul (és vérzik is).' },
-      { kerdes: 'Mi a <b>szabad víz</b> és a <b>só</b> szerepe a sejtek térfogatában?', valasztas: ['A víz a só (ozmotikusan aktív anyag) után áramlik – ahol több a só, oda megy a víz', 'Nincs kapcsolatuk', 'A só mindig a sejtbe megy', 'A víz mindig a sejtből jön ki'], valasz: 'A víz a só (ozmotikusan aktív anyag) után áramlik – ahol több a só, oda megy a víz', segitseg: '„A víz követi a sót.”', megoldas: 'Ezért fontos az infúzió összetétele: az izotóniás oldat a sejten kívül marad, a hipotóniás a sejtekbe is beáramlik.' },
-      { kerdes: 'Melyik szervben tud jól regenerálódni (újraképződni) a szövet?', valasztas: ['A májban', 'Az agyban', 'A szívizomban', 'A gerincvelőben'], valasz: 'A májban', segitseg: 'Egy része akár vissza is nőhet.', megoldas: 'A máj jól regenerálódik; az idegsejtek és a szívizomsejtek alig. Ezért maradandó az infarktus és a stroke okozta károsodás.' },
+      { kerdes: 'Hogyan függ össze a <b>só</b> (nátrium) és a <b>víz</b> mozgása a folyadékterek között?', valasztas: ['A víz a só (ozmotikusan aktív anyag) után áramlik – ahol több a só, oda megy a víz', 'Nincs kapcsolatuk', 'A só mindig a sejtbe megy', 'A víz mindig a sejtből jön ki'], valasz: 'A víz a só (ozmotikusan aktív anyag) után áramlik – ahol több a só, oda megy a víz', segitseg: '„A víz követi a sót.”', megoldas: 'Ezért fontos az infúzió összetétele: az izotóniás oldat a sejten kívül marad, a hipotóniás a sejtekbe is beáramlik.' },
+      { kerdes: 'Melyik szerv szövete képes jól regenerálódni (újraképződni)?', valasztas: ['A májban', 'Az agyban', 'A szívizomban', 'A gerincvelőben'], valasz: 'A májban', segitseg: 'Egy része akár vissza is nőhet.', megoldas: 'A máj jól regenerálódik; az idegsejtek és a szívizomsejtek alig. Ezért maradandó az infarktus és a stroke okozta károsodás.' },
       { kerdes: 'Mi az <b>ödéma</b>?', valasztas: ['Kóros folyadékfelszaporodás a szövetközti térben (vizenyő)', 'Vérzés', 'Kiszáradás', 'Csonttörés'], valasz: 'Kóros folyadékfelszaporodás a szövetközti térben (vizenyő)', segitseg: 'Benyomható duzzanat.', megoldas: 'Ödéma okai: szívelégtelenség (pangás), alacsony fehérjeszint, gyulladás, allergia (érfal-áteresztés), nyirokpangás.' },
       { kerdes: 'Mi a különbség a <b>külső elválasztású</b> (exokrin) és a <b>belső elválasztású</b> (endokrin) mirigy között?', valasztas: ['Az exokrin kivezetőcsövön a felszínre üríti váladékát (pl. nyálmirigy), az endokrinnek nincs kivezetőcsöve, közvetlenül a vérbe ürít (pl. pajzsmirigy)', 'Az exokrin a vérbe, az endokrin a bélbe ürít', 'Az exokrin hormont, az endokrin verejtéket termel', 'Nincs különbség'], valasz: 'Az exokrin kivezetőcsövön a felszínre üríti váladékát (pl. nyálmirigy), az endokrinnek nincs kivezetőcsöve, közvetlenül a vérbe ürít (pl. pajzsmirigy)', segitseg: 'Exo = ki, endo = be.', megoldas: 'Mirigy (glandula): váladékot termelő szerv. Váladéka lehet hasznos szekrétum (nyál, epe) vagy kiürítendő exkrétum (vizelet). A legegyszerűbb mirigy egyetlen sejt (kehelysejt a bélhámban).' },
       { kerdes: 'Miben különbözik a <b>hámszövet</b> a többi szövettől?', valasztas: ['Sejtjei szorosan egymás mellett vannak, sejtközötti állománya és erei nincsenek', 'Sok sejtközötti állománya és sok ere van', 'Csak a test belsejében fordul elő', 'Összehúzódásra képes'], valasz: 'Sejtjei szorosan egymás mellett vannak, sejtközötti állománya és erei nincsenek', segitseg: 'A sejtek a sejtek közötti járatokban keringő nedvből táplálkoznak.', megoldas: 'A hámszövet érmentes, sejtközötti állomány nincs benne (csak sejtközötti járatok). Ezért egy felületes horzsolás nem vérzik – ha vérzik, a seb már az erezett irhát is elérte.' },
@@ -347,15 +347,15 @@
     ...Tananyag.szint(3, [
       { kerdes: 'Egy 70 kg-os felnőtt vérplazmája kb. 3,5 liter. Ha 1000 ml izotóniás krisztalloidot adsz, kb. mennyi marad a plazmában (1/4 rész)?', valasz: 250, egyseg: 'ml', szakma: CIMKEK.SZAMOLAS, segitseg: '1000 : 4.', megoldas: '1000 : 4 = 250 ml marad az erekben, kb. 750 ml a szövetközti térbe kerül.' },
       { kerdes: 'Egy 70 kg-os beteg teljes testvize 42 l. Ha 1000 ml 5%-os glükózt kap, kb. hány ml marad az érpályában? (A plazma a testvíz kb. 1/12-e)', valasz: 1000 / 12, tizedes: 0, egyseg: 'ml', szakma: CIMKEK.SZAMOLAS, segitseg: '1000 : 12.', megoldas: '1000 : 12 ≈ 83 ml – ezért nem alkalmas volumenpótlásra.' },
-      { kerdes: 'Miért alakul ki <b>agyödéma</b> súlyos hiponatrémiában (pl. sok víz ivása, vízmérgezés)?', valasztas: ['Mert a vér hígabb lesz a sejteknél, a víz beáramlik az agysejtekbe – a koponyában nincs hely a duzzadásra', 'Mert sok a só', 'Mert kiszárad az agy', 'Nem alakul ki'], valasz: 'Mert a vér hígabb lesz a sejteknél, a víz beáramlik az agysejtekbe – a koponyában nincs hely a duzzadásra', segitseg: 'Ozmózis + zárt koponya.', megoldas: 'Hiponatrémia → hipotóniás belső környezet → sejtduzzadás → agyödéma: fejfájás, zavartság, görcs, kóma. (Pl. extrém vízivás, egyes drogok, vízhajtók.)' },
+      { kerdes: 'Miért alakul ki <b>agyödéma</b> súlyos hiponatrémiában (pl. sok víz ivása, vízmérgezés)?', valasztas: ['Mert a sejteken kívüli folyadék hígabb lesz a sejtek belsejénél, így a víz beáramlik az agysejtekbe – a koponyában nincs hely a duzzadásra', 'Mert sok a só', 'Mert kiszárad az agy', 'Nem alakul ki'], valasz: 'Mert a sejteken kívüli folyadék hígabb lesz a sejtek belsejénél, így a víz beáramlik az agysejtekbe – a koponyában nincs hely a duzzadásra', segitseg: 'Ozmózis + zárt koponya.', megoldas: 'Hiponatrémia → hipotóniás belső környezet → sejtduzzadás → agyödéma: fejfájás, zavartság, görcs, kóma. (Pl. extrém vízivás, egyes drogok, vízhajtók.)' },
       { kerdes: 'Mi az <b>osteon</b> (Havers-rendszer)?', valasztas: ['A csont mechanikai egysége: a Havers-csatorna (benne erek) körül koncentrikus csontlemezek', 'A porc felszínét borító hártya', 'Az izomrost összehúzódó eleme', 'A csontvelő vérképző sejtje'], valasz: 'A csont mechanikai egysége: a Havers-csatorna (benne erek) körül koncentrikus csontlemezek', segitseg: 'Egymásba illesztett, mikroszkopikus csövek.', megoldas: 'A lemezes csontszövetben a lemezek a Havers-csatorna körül koncentrikusan rendeződnek; ez adja a nagy nyomási szilárdságot. A csontsejtek a lemezek határain ülnek, nyúlványaik csatornácskákban futnak; a sejtközötti állományba rakódott mészsó adja a keménységet.' },
       { kerdes: 'Az ischaemia során a sejtekből hiányzik az energia (ATP). Miért duzzadnak meg a sejtek?', valasztas: ['Mert leáll a nátrium-kálium pumpa: nátrium és víz áramlik a sejtbe', 'Mert több oxigént kapnak', 'Mert zsugorodnak', 'Nem duzzadnak'], valasz: 'Mert leáll a nátrium-kálium pumpa: nátrium és víz áramlik a sejtbe', segitseg: 'Aktív transzport energiát igényel.', megoldas: 'Energia nélkül a pumpa leáll, a sejt duzzad (citotoxikus ödéma) – pl. stroke és keringésmegállás utáni agyödéma.' },
       { kerdes: 'Miért alakul ki az <b>égett</b> betegnél gyorsan nagy folyadékvesztés?', valasztas: ['A sérült hajszálerek áteresztők lesznek: plazma szivárog a szövetekbe, és a sérült bőrön át párolog', 'Mert sokat vizel', 'Mert vérzik az égett bőr', 'Nincs folyadékvesztés'], valasz: 'A sérült hajszálerek áteresztők lesznek: plazma szivárog a szövetekbe, és a sérült bőrön át párolog', segitseg: 'Kapilláris szivárgás + párolgás.', megoldas: 'Nagy kiterjedésű égésnél órák alatt jelentős plazmavesztés alakul ki (égési sokk) – ezért kell testtömeg és égett felület alapján számolt folyadékpótlás.' },
       { kerdes: 'Melyik a <b>homeosztázis</b> szabályozásában részt vevő két fő rendszer?', valasztas: ['Idegrendszer (gyors) és hormonrendszer (lassabb)', 'Csontváz és izmok', 'Bőr és haj', 'Emésztőrendszer és szem'], valasz: 'Idegrendszer (gyors) és hormonrendszer (lassabb)', segitseg: 'Villanyvezeték és levélposta.', megoldas: 'Az idegrendszer másodpercek alatt (pl. baroreflex), a hormonrendszer percek–órák alatt (pl. ADH, aldoszteron) korrigál.' },
       { kerdes: 'Hipotermiás betegnél miért lassul minden sejtszintű folyamat (és miért véd ez az agynak)?', valasztas: ['Mert az enzimek a hidegben lassabban működnek – kisebb az oxigénigény', 'Mert több oxigént kap', 'Mert gyorsul az anyagcsere', 'Nem lassul'], valasz: 'Mert az enzimek a hidegben lassabban működnek – kisebb az oxigénigény', segitseg: 'Kb. 1 °C-onként 5–7%-kal csökken az anyagcsere.', megoldas: 'A hideg csökkenti az anyagcserét – ezért élhet túl egy kihűlt beteg hosszabb keringésmegállást. Ugyanezért veszélyes a kihűlés (alvadás, ritmus).' },
-      { kerdes: 'Miért káros a <b>túl magas</b> láz (≥ 41–42 °C) a sejtekre?', valasztas: ['Mert a fehérjék (enzimek) kicsapódnak, a sejtek károsodnak – többszervi elégtelenség', 'Mert jobban működnek', 'Mert lehűlnek', 'Nem káros'], valasz: 'Mert a fehérjék (enzimek) kicsapódnak, a sejtek károsodnak – többszervi elégtelenség', segitseg: 'Mint a tojásfehérje a serpenyőben.', megoldas: 'Extrém hipertermiában (hőguta, malignus hipertermia, egyes drogok) a sejtek fehérjéi károsodnak: agy-, máj-, vese-, izomkárosodás. Azonnali hűtés!' },
+      { kerdes: 'Miért káros a <b>túl magas</b> láz (≥ 41–42 °C) a sejtekre?', valasztas: ['Mert a fehérjék (enzimek) kicsapódnak (denaturálódnak), a sejtek károsodnak – többszervi elégtelenség', 'Mert jobban működnek', 'Mert lehűlnek', 'Nem káros'], valasz: 'Mert a fehérjék (enzimek) kicsapódnak (denaturálódnak), a sejtek károsodnak – többszervi elégtelenség', segitseg: 'Mint a tojásfehérje a serpenyőben.', megoldas: 'Extrém hipertermiában (hőguta, malignus hipertermia, egyes drogok) a sejtek fehérjéi károsodnak: agy-, máj-, vese-, izomkárosodás. Azonnali hűtés!' },
       { kerdes: 'Mi jellemzi a <b>szívizom</b> szerkezetét a vázizomhoz képest?', valasztas: ['Rostjai egymással összekapcsolódva hálózatot alkotnak, a sejthatárokon vastag harántvonalak (Eberth-vonalak) látszanak', 'Orsó alakú, egymagvú sejtekből áll, harántcsíkolat nélkül', 'Párhuzamos, soha nem kapcsolódó, sokmagvú rostokból áll, és hamar fárad', 'Nincs benne miofibrillum'], valasz: 'Rostjai egymással összekapcsolódva hálózatot alkotnak, a sejthatárokon vastag harántvonalak (Eberth-vonalak) látszanak', segitseg: 'Az ingerület ezért terjed szét az egész szíven.', megoldas: 'A szívizom különleges harántcsíkolt izom: rostjai hálózatot alkotnak, a sejthatárokat az Eberth-vonalak (ma: interkaláris lemezek) jelzik. Akaratunktól független, nagy erőre képes, nem fárad – átmenet a vázizom és a simaizom között.' },
-      { kerdes: 'Melyik állapot okoz <b>alacsony kalciumszintet</b> és ezzel izomgörcsöt, zsibbadást (tetániát)?', valasztas: ['Hiperventiláció (a lúgosodás csökkenti az ionizált kalciumot), mellékpajzsmirigy-sérülés', 'Sok tejtermék fogyasztása', 'Láz', 'Magas vércukor'], valasz: 'Hiperventiláció (a lúgosodás csökkenti az ionizált kalciumot), mellékpajzsmirigy-sérülés', segitseg: 'Alkalózis.', megoldas: 'Alkalózisban több kalcium kötődik a fehérjékhez – csökken a szabad (ionizált) kalcium: zsibbadás, „cukorsüveg-kéz”, izomgörcs.' },
+      { kerdes: 'Melyik állapot okoz <b>alacsony kalciumszintet</b> és ezzel izomgörcsöt, zsibbadást (tetániát)?', valasztas: ['Hiperventiláció (a lúgosodás csökkenti az ionizált kalciumot), mellékpajzsmirigy-sérülés', 'Sok tejtermék fogyasztása', 'Láz', 'Magas vércukor'], valasz: 'Hiperventiláció (a lúgosodás csökkenti az ionizált kalciumot), mellékpajzsmirigy-sérülés', segitseg: 'Alkalózis.', megoldas: 'Alkalózisban több kalcium kötődik a fehérjékhez – csökken a szabad (ionizált) kalcium: zsibbadás, „szülészkéz”, izomgörcs.' },
       { kerdes: 'Mit jelent a <b>reticuloendothelialis rendszer</b> (RES)?', valasztas: ['Az idegen részecskéket, baktériumokat bekebelező (fagocitáló) sejtek összessége – nyirokcsomókban, csontvelőben, májban, lépben', 'Az erek belső falát bélelő hám', 'A szív ingerületvezető rendszere', 'A vörösvérsejtek termelése'], valasz: 'Az idegen részecskéket, baktériumokat bekebelező (fagocitáló) sejtek összessége – nyirokcsomókban, csontvelőben, májban, lépben', segitseg: 'A kötőszövet védekező rendszere.', megoldas: 'A RES sejtjei falósejtek; a hozzájuk kapcsolódó plazmasejtek ellenanyagot (antitestet) termelnek az antigénekkel szemben. Ma inkább mononukleáris fagocitarendszernek nevezik.' },
     ]),
   ];
@@ -383,7 +383,7 @@
         <tbody>
           <tr><td>sejthártya (sejtmembrán)</td><td>elhatárol; ezen át veszi fel a sejt a tápanyagot és adja le a bomlástermékeket</td></tr>
           <tr><td>citoplazma</td><td>a sejt magon kívüli része; izomsejtben miofibrillumok, idegsejtben neurofibrillumok vannak benne</td></tr>
-          <tr><td>sejtközpont (centriolum)</td><td>a sejtosztódás és a sejtmozgás irányítása</td></tr>
+          <tr><td>sejtközpont (cytocentrum, két centriolumból)</td><td>a sejtosztódás és a sejtmozgás irányítása</td></tr>
           <tr><td>mitokondrium</td><td>oxidációs folyamatok – energiatermelés (ATP)</td></tr>
           <tr><td>riboszóma (az endoplazmás hálózaton)</td><td>fehérjeszintézis</td></tr>
           <tr><td>Golgi-készülék</td><td>váladékképzés (szekréció)</td></tr>
@@ -409,14 +409,15 @@
         <tbody>
           <tr><td>Hámszövet</td><td>borít, bélel, elválaszt</td><td>bőr felhámja, nyálkahártya, mirigyek</td></tr>
           <tr><td>Kötő- és támasztó</td><td>összeköt, megtart, szállít</td><td>csont, porc, ín, zsír, vér</td></tr>
-          <tr><td>Izom</td><td>összehúzódik</td><td>vázizom (akaratlagos), simaizom, szívizom (akaratlan)</td></tr>
+          <tr><td>Izom</td><td>összehúzódik</td><td>vázizom (akaratlagos); simaizom és szívizom (akaratlan)</td></tr>
           <tr><td>Ideg</td><td>ingerületet vezet</td><td>agy, gerincvelő, idegek</td></tr>
         </tbody>
       </table></div>
 
       <h4>Hámszövet</h4>
       <ul>
-        <li>Borítja a test külső és belső felszíneit, béleli az üreges szerveket; az erek belsejét <b>endothel</b>, a savós hártyákat (mellhártya, hashártya) <b>mesothel</b> béleli.</li>
+        <li>Borítja a test külső és belső felszíneit, béleli az üreges szerveket.</li>
+        <li>Ide tartozik az erek belső felszínét bélelő <b>endothel</b> és a savós üregek (mellhártya, hashártya) felszínét borító <b>mesothel</b> is.</li>
         <li>Sejtjei szorosan egymás mellett: <b>nincs sejtközötti állomány és nincsenek erei</b>.</li>
         <li>Alak szerint: <b>laphám, köbhám, hengerhám</b>; rétegszám szerint: <b>egyrétegű, többrétegű</b>.</li>
         <li>Működés szerint: <b>fedőhám</b> (védőhám – pl. a bőr elszarusodó laphámja, a légutak és a petevezeték csillószőrös hengerhámja, a húgyutak urotheliuma), <b>érzékhám</b>, <b>felszívóhám</b> (vékonybél), <b>mirigyhám</b>.</li>
@@ -427,9 +428,11 @@
       <ul>
         <li>A legelterjedtebb szövet; sok <b>sejtközötti állománya</b> (rostok + alapállomány) van. Rostjai: <b>kollagén</b> (enyvadó), <b>rugalmas</b> és <b>rácsrostok</b>.</li>
         <li>Sejtjei: rostképző fibroblaszt (fibrocita), falósejt (makrofág, hisztiocita), vándorsejtek (limfocita, plazmasejt), hízósejt (heparin, hisztamin).</li>
-        <li>Fajtái: <b>laza rostos</b> (mindenütt), <b>tömött rostos</b> (legrendezettebb formája az <b>ín</b>), <b>reticularis</b> (vérképző és nyirokszervek váza). A <b>vér</b> is kötőszövet: sejtjei a vérsejtek, sejtközötti állománya a plazma.</li>
-        <li>Véd, a falósejtek rendszere (<b>RES</b>) a kórokozók ellen is; vizet, sót, zsírt tárol. Sok víz megkötése: <b>vizenyő (ödéma)</b>; nagy vízvesztésnél a kötőszövet „kiszárad”.</li>
-        <li><b>Porcszövet:</b> érmentes, porchártya borítja. <b>Üvegporc</b> (hyalin – ízületi porc), <b>rugalmas rostos porc</b> (fülporc), <b>kollagén rostos porc</b> (porckorong).</li>
+        <li>Fajtái: <b>laza rostos</b> (mindenütt), <b>tömött rostos</b> (legrendezettebb formája az <b>ín</b>), <b>reticularis</b> (vérképző és nyirokszervek váza).</li>
+        <li>A <b>vér</b> is kötőszövet: sejtjei a vérsejtek, sejtközötti állománya a plazma.</li>
+        <li>Véd a mechanikai és vegyi ártalmak ellen; falósejtjeinek rendszere, a <b>RES</b> (reticuloendothelialis rendszer) a kórokozókat és az idegen részecskéket kebelezi be.</li>
+        <li>Vizet, sót, zsírt tárol. Ha sok vizet köt meg: <b>vizenyő (ödéma)</b>; nagy vízvesztésnél (pl. hasmenés) a kötőszövet szinte kiszárad.</li>
+        <li><b>Porcszövet:</b> érmentes, porchártya borítja. <b>Üvegporc</b> (hyalinporc, pl. ízületi porc, bordaporc), <b>rugalmas rostos porc</b> (fülporc), <b>kollagén rostos porc</b> (porckorong).</li>
         <li><b>Csontszövet:</b> csontsejtek + mészsóval telített sejtközötti állomány. A lemezek a <b>Havers-csatorna</b> (benne erek) körül koncentrikusan rendeződnek: ez az <b>osteon</b>, a csont mechanikai egysége.</li>
         <li><b>Zsírszövet:</b> tartalék tápanyag, hőszigetelés, támasztás (talp, vese körüli, szemüregi zsírtest).</li>
       </ul>
@@ -438,7 +441,7 @@
       <div class="tabla-keret"><table>
         <thead><tr><th></th><th>Simaizom</th><th>Harántcsíkolt (váz-) izom</th><th>Szívizom</th></tr></thead>
         <tbody>
-          <tr><td>Felépítés</td><td>orsó alakú sejtek, középen egy mag</td><td>több cm hosszú rostok, sok mag a rost hártyája alatt, harántcsíkolat</td><td>harántcsíkolt rostok hálózata, Eberth-vonalak</td></tr>
+          <tr><td>Felépítés</td><td>orsó alakú sejtek, középen egy mag</td><td>néhány cm hosszú rostok, sok mag a rost hártyája alatt, harántcsíkolat</td><td>harántcsíkolt rostok hálózata, Eberth-vonalak</td></tr>
           <tr><td>Működés</td><td>akaratlan (vegetatív idegrendszer)</td><td>akaratlagos</td><td>akaratlan</td></tr>
           <tr><td>Összehúzódás</td><td>lassú, féregszerű, nem fárad</td><td>gyors, nagy erejű, hamar fárad</td><td>nagy erejű, nem fárad</td></tr>
           <tr><td>Hol?</td><td>tápcsatorna, hörgők, erek fala, bőr</td><td>vázizmok</td><td>szív</td></tr>
@@ -452,13 +455,23 @@
       <h3>Szervek és szervrendszerek</h3>
       <p>Az azonos működést szolgáló szövetek <b>szervvé</b> egyesülnek (pl. a vesében hám-, kötő- és idegszövet is van), a szervek <b>szervrendszert</b> alkotnak. A tankönyv felosztása: <b>mozgásrendszer</b> (csontváz, izomzat), <b>keringési szervek</b>, <b>zsigeri rendszerek</b> (emésztő-, légző-, vizeletkiválasztó és nemi szervek), <b>szabályozó rendszerek</b> (belső elválasztású mirigyek, idegrendszer) és az <b>érzékszervek</b>. Az irányítás közös: ideg- és hormonrendszer (neuroendokrin rendszer).</p>
 
+      <h3>Anyagszállítás a sejthártyán át</h3>
+      <ul>
+        <li><b>Diffúzió:</b> az oldott anyag a nagyobb koncentráció felől a kisebb felé mozog, energia nélkül (pl. az oxigén a léghólyagocskából a vérbe).</li>
+        <li><b>Ozmózis:</b> a víz áramlása féligáteresztő hártyán át a töményebb oldat felé – „a víz követi a sót”.</li>
+        <li><b>Aktív transzport:</b> energiát (ATP-t) igénylő szállítás a koncentrációkülönbséggel szemben (pl. nátrium-kálium pumpa). Oxigénhiányban kevés az ATP, a pumpa leáll, a sejt megduzzad.</li>
+      </ul>
+      <p>A sejteken <b>kívül</b> a nátrium, a sejteken <b>belül</b> a kálium a fő ion. Az <b>izotóniás</b> oldat (pl. 0,9%-os NaCl) töménysége a vérével azonos: a sejtek nem változnak. <b>Hipotóniás</b> (hígabb) oldatban a víz a sejtbe áramlik, a vörösvértest megduzzad, szétpattanhat (hemolízis); <b>hipertóniás</b> (töményebb) oldatban a sejt vizet veszít, összezsugorodik.</p>
+
       <h3>Homeosztázis – a belső egyensúly</h3>
+      <p>A sejteket körülvevő folyadék (szövetnedv, vérplazma, nyirok) a <b>belső környezet</b>. Ennek viszonylagos állandósága a homeosztázis; az ideg- és a hormonrendszer tartja fenn.</p>
       <ul>
         <li><b>Testhő:</b> kb. 36–37 °C</li>
-        <li><b>Vér pH:</b> 7,35–7,45 (alatta acidózis, fölötte alkalózis)</li>
+        <li><b>Vér pH:</b> 7,35–7,45 (alatta acidózis, fölötte alkalózis). A CO₂ a vérben szénsavat képez: ha a beteg túl sokat lélegzik ki (hiperventiláció), alkalózis, ha keveset (légzési elégtelenség), acidózis lesz.</li>
         <li><b>Vércukor:</b> éhgyomorra kb. 4–6 mmol/l</li>
         <li><b>Víz és sók</b> (nátrium, kálium) egyensúlya</li>
       </ul>
+      <p><b>Negatív visszacsatolás:</b> az eltérés ellentétes irányú választ vált ki, és így megszűnik (pl. melegben izzadás hűt) – mint egy termosztát. <b>Pozitív visszacsatolás:</b> az eltérés önmagát erősíti; betegségben ördögi kör lesz belőle (pl. vérzés → kihűlés → rosszabb alvadás → még több vérzés).</p>
 
       <h3>Próbáld ki: a test folyadékterei</h3>
       <div data-interaktiv></div>
