@@ -66,10 +66,15 @@
   // ---- 3. ábra: a magzati vérkeringés vázlata ----
   function magzati(kiemel = '') {
     const c = (k, alap) => `${alap}${kiemel === k ? ' kiemelt' : kiemel ? ' halvany' : ''}`;
-    const ut = (k, d, o) => `<path d="${d}" class="${c(k, 'ut ' + o)}"/>`;
+    // Minden érszakasz végén nyílhegy mutatja az áramlás irányát.
+    const ut = (k, d, o) => `<path d="${d}" class="${c(k, 'ut ' + o)}" marker-end="url(#nyilhegy-${o})"/>`;
+    const defs = `<defs>${['szen', 'oxi']
+      .map((o) => `<marker id="nyilhegy-${o}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" class="nyilhegy ${o}"/></marker>`)
+      .join('')}</defs>`;
     return Rajz.svg(
       360,
       300,
+      defs +
       '<rect x="120" y="90" width="60" height="42" class="szerv"/><rect x="180" y="90" width="60" height="42" class="szerv"/>' +
         '<rect x="120" y="132" width="60" height="50" class="szerv"/><rect x="180" y="132" width="60" height="50" class="szerv"/>' +
         Rajz.szoveg(150, 111, 'JP', 'kicsi') + Rajz.szoveg(210, 111, 'BP', 'kicsi') + Rajz.szoveg(150, 157, 'JK', 'kicsi') + Rajz.szoveg(210, 157, 'BK', 'kicsi') +
@@ -80,16 +85,16 @@
         ut('alsovena', 'M60 150 V112 H120', 'oxi') +
         ut('felsovena', 'M135 30 V90', 'szen') +
         ut('tudoarteria', 'M150 182 V205 H200', 'szen') +
-        '<path d="M190 205 V226" class="ut szen halvany"/>' +
+        '<path d="M190 205 V224" class="ut szen halvany" marker-end="url(#nyilhegy-szen)"/>' +
         ut('botalli', 'M200 205 H300', 'szen') +
         ut('aorta', 'M240 157 H265 V45 H300 V205', 'oxi') +
         ut('koldokarteria', 'M300 205 V270 H102', 'szen') +
-        `<circle cx="180" cy="111" r="8" class="${kiemel === 'ovalis' ? 'jelolo-kor' : 'oxi'}"/>` +
+        `<circle cx="180" cy="111" r="8" class="${kiemel === 'ovalis' ? 'jelolo-kor' : kiemel ? 'oxi halvany' : 'oxi'}"/>` +
         Rajz.szoveg(135, 20, 'felső üres véna', 'kicsi') +
         Rajz.szoveg(8, 100, 'alsó üres véna', 'kicsi', 'start') +
         Rajz.szoveg(68, 222, 'köldökvéna', 'kicsi', 'start') +
         Rajz.szoveg(144, 200, 'tüdőverőér', 'kicsi', 'end') +
-        Rajz.szoveg(250, 197, 'Botalli-vezeték', 'kicsi') +
+        Rajz.szoveg(250, 197, 'Botallo-vezeték', 'kicsi') +
         Rajz.szoveg(200, 283, 'köldökartériák', 'kicsi') +
         Rajz.szoveg(180, 76, 'ovális nyílás', 'kicsi') +
         Rajz.szoveg(306, 125, 'aorta', 'kicsi', 'start'),
@@ -106,14 +111,14 @@
     { felirat: 'A belső sejtek elfolyósodnak, üreg (csíraüreg) keletkezik, amelyet egy sejtréteg vesz körül: ez a <b>hólyagcsíra</b> (blastula). A csíra beágyazódik a méh nyálkahártyájába.', rajz: () => fejlodes(3) },
     { felirat: 'A fal egy része betüremkedik: kialakul a két sejtrétegű <b>bélcsíra</b> (gastrula) – külső és belső csíralemezzel, ősbéllel és ősszájjal.', rajz: () => fejlodes(4) },
     { felirat: 'A két réteg között megjelenik a <b>középső csíralemez</b> is. A három csíralemezből fejlődik minden szerv.', rajz: () => lemezek() },
-    { felirat: 'A magzat tüdeje még nem lélegzik: az oxigént a <b>méhlepényből</b> kapja a köldökvénán át. A vér nagy része két „rövidzáron” – az <b>ovális nyíláson</b> és a <b>Botalli-vezetéken</b> – át kikerüli a tüdőt.', rajz: () => magzati() },
-    { felirat: 'Az <b>első légvételkor</b> a tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvarban megnő a nyomás, és az ovális nyílás bezárul. A Botalli-vezeték és a köldökerek is elzáródnak.', rajz: () => magzati('ovalis') },
+    { felirat: 'A magzat tüdeje még nem lélegzik: az oxigént a <b>méhlepényből</b> kapja a köldökvénán át. A vér nagy része két „rövidzáron” – az <b>ovális nyíláson</b> és a <b>Botallo-vezetéken</b> – át kikerüli a tüdőt.', rajz: () => magzati() },
+    { felirat: 'Az <b>első légvételkor</b> a tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvarban megnő a nyomás, és az ovális nyílás bezárul. A Botallo-vezeték és a köldökerek is elzáródnak.', rajz: () => magzati('ovalis') },
   ];
 
   // ---- Interaktív rész: a magzat fejlődése hónapról hónapra (a könyv adatai) ----
   const HONAP = [
-    ['🔬', 'A barázdálódó csíra 3–4 nap alatt jut át a méhkürtön, majd beágyazódik a méh nyálkahártyájába. Kialakulnak a csíralemezek, a magzatburkok.'],
-    ['🫘', 'A 4. hétre kialakul az alapforma (kb. 5 mm); a fej főleg agyvelőből áll; megjelenik a szív, a máj és a végtagok telepe. A 2. hónap végére kb. 2,5 cm, már emberi formájú.'],
+    ['🔬', 'A barázdálódó csíra 3–4 nap alatt jut át a méhkürtön, majd beágyazódik a méh nyálkahártyájába. Kialakulnak a csíralemezek, a magzatburkok. A 4. hétre kialakul az alapforma (kb. 5 mm); a fej főleg agyvelőből áll; megjelenik a szív, a máj és a végtagok telepe.'],
+    ['🫘', 'Az embrió gyorsan nő: a 2. hónap végére kb. 2,5 cm hosszú, és már emberi formájú.'],
     ['👶', 'Aránytalanul nagy fej, rövid végtagok; finom szőrzet (magzatgyapjú, lanugo) borítja. A külső nemi szervekről eldönthető a nem. Kifejlődik a méhlepény.'],
     ['🤸', 'A magzat aktív mozgásokat kezd végezni.'],
     ['🧴', 'A faggyúmirigyek működni kezdenek: termelik az egész testet beborító magzatmázat.'],
@@ -121,7 +126,7 @@
     ['🏥', 'A könyv szerint a 7–8. hónaptól a magzat esetleg már az anyán kívül is életben tartható. (Ma, koraszülött-intenzív ellátással, ez már kb. a 22–24. héttől lehetséges.)'],
     ['📈', 'A magzat tovább nő és érik; az anyán kívüli életképessége hétről hétre javul.'],
     ['📈', 'Gyarapodik a zsírpárna, a szervek érnek.'],
-    ['🍼', 'Érett újszülött: átlag 50 cm, 3200 g. A fej a legnagyobb körfogatú rész. Fiúknál a herék leszálltak a herezacskóba; a köldök kb. a test hosszának közepén van.'],
+    ['🍼', 'Érett újszülött: átlag 50 cm, 3200 g. A fej a legnagyobb körfogatú rész. Fiúknál a herék leszálltak a herezacskóba; a köldök kb. a hasfal közepén van.'],
   ];
   const interaktiv = Rajz.interaktiv({
     csuszkak: [{ k: 'h', cim: 'Terhességi hónap (28 napos holdhónap)', min: 1, max: 10, lepes: 1, ertek: 3, egyseg: '' }],
@@ -131,9 +136,9 @@
     }),
   });
 
-  const RESZ = ['ovális nyílás (foramen ovale)', 'Botalli-vezeték (ductus Botalli)', 'köldökvéna', 'köldökartériák'];
-  const magzatiFeladat = (k, valasz, n, megoldas) => ({
-    kerdes: `Melyik ér vagy nyílás van kiemelve a magzati vérkeringés vázlatán? <small>(${n}. ábra)</small>`,
+  const RESZ = ['ovális nyílás (foramen ovale)', 'Botallo-vezeték (ductus Botalli)', 'köldökvéna', 'köldökartériák'];
+  const magzatiFeladat = (k, valasz, n, kerdes, megoldas) => ({
+    kerdes: `${kerdes} <small>(${n}. ábra)</small>`,
     abra: () => Rajz.cimkeNelkul(magzati(k)),
     valasztas: RESZ,
     valasz,
@@ -157,7 +162,7 @@
       { kerdes: 'A könyv szerint kb. hány napig tart a szűkebb értelemben vett ontogenezis (a méhen belüli fejlődés)?', valasz: 280, egyseg: 'nap', segitseg: '40 hét.', megoldas: 'Kb. 280 nap = 40 hét = 10 holdhónap. (A szülészet ezt az utolsó menstruáció első napjától számolja; maga a megtermékenyítés kb. 2 héttel később történik.)' },
       { kerdes: 'Mi a <b>barázdálódás</b>?', valasztas: ['A megtermékenyített pete ismételt osztódása: a sejtek száma nő, a méretük csökken', 'A magzat bőrének ráncolódása', 'A méhlepény kialakulása', 'A spermium útja a petevezetőben'], valasz: 'A megtermékenyített pete ismételt osztódása: a sejtek száma nő, a méretük csökken', segitseg: 'A pete felszínén barázdák jelennek meg.', megoldas: 'Barázdálódáskor a csíra mérete nem nő (akkora marad, mint a petesejt), csak egyre több, egyre kisebb sejtből áll.' },
       { kerdes: 'Mi a <b>szedercsíra</b> (morula)?', valasztas: ['Tömör, szederre emlékeztető sejthalmaz', 'Üreges, egy sejtrétegű gömb', 'Két sejtrétegű zsák', 'Az érett petesejt'], valasz: 'Tömör, szederre emlékeztető sejthalmaz', segitseg: 'Morus = szeder.', megoldas: 'A barázdálódás során kialakuló tömör sejthalmaz a szedercsíra; ebből lesz a hólyagcsíra.' },
-      { kerdes: 'Hány csíralemez alakul ki az embrióban?', valasz: 3, egyseg: 'db', segitseg: 'Külső, középső, belső.', megoldas: 'Három: külső (ectoderma), középső (mesoderma) és belső (entoderma) csíralemez.' },
+      { kerdes: 'Hány csíralemez alakul ki az embrióban?', valasz: 3, egyseg: 'db', segitseg: 'A bélcsíra két rétege közé később még egy réteg ékelődik.', megoldas: 'Három: külső (ectoderma), középső (mesoderma) és belső (entoderma) csíralemez.' },
       { kerdes: 'Melyik csíralemezből fejlődik az <b>idegrendszer</b> és a bőr?', valasztas: ['Külső csíralemez (ectoderma)', 'Középső csíralemez (mesoderma)', 'Belső csíralemez (entoderma)', 'A chorionból'], valasz: 'Külső csíralemez (ectoderma)', fixSorrend: true, segitseg: 'Ami „kívül” van, és ami érzékel.', megoldas: 'Az ectodermából: bőr, haj, köröm, mirigyek hámja és az idegrendszer.' },
       { kerdes: 'Melyik csíralemezből fejlődik a csont, az izom, a szív és az erek?', valasztas: ['Külső csíralemez (ectoderma)', 'Középső csíralemez (mesoderma)', 'Belső csíralemez (entoderma)', 'A chorionból'], valasz: 'Középső csíralemez (mesoderma)', fixSorrend: true, segitseg: 'A mozgás és a keringés szervei.', megoldas: 'A mesodermából: kötőszövet, izomzat, csontok, szív, erek.' },
       { kerdes: 'Melyik csíralemezből fejlődik a bél hámja, a légcső és a máj?', valasztas: ['Külső csíralemez (ectoderma)', 'Középső csíralemez (mesoderma)', 'Belső csíralemez (entoderma)', 'A chorionból'], valasz: 'Belső csíralemez (entoderma)', fixSorrend: true, segitseg: 'Az ősbelet béleli.', megoldas: 'Az entodermából: a belek (hámja), a légcső, a máj stb.' },
@@ -177,42 +182,42 @@
       { kerdes: 'Melyik terhességi hónapra fejlődik ki a méhlepény a könyv szerint?', valasz: 3, egyseg: 'hónap', segitseg: 'Az első trimeszter végére.', megoldas: 'A méhlepény a 3. hónapra fejlődik ki; addig a csíra a feloldott méhnyálkahártyából és diffúzióval táplálkozik.' },
       { kerdes: 'Mi a latin neve a <b>középső</b> csíralemeznek?', szakma: CIMKEK.LATIN, valasztas: ['mesoderma', 'ectoderma', 'entoderma', 'chorion'], valasz: 'mesoderma', segitseg: 'Meso- = közép.', megoldas: 'Ectoderma = külső, mesoderma = középső, entoderma = belső csíralemez.' },
       { kerdes: 'Mit jelent a <b>foramen ovale</b>?', szakma: CIMKEK.LATIN, valasztas: ['Ovális nyílás a két pitvar között (a magzatban)', 'A koponyaalap egyik nyílása', 'A két kamra közti sövény', 'A köldökzsinór ere'], valasz: 'Ovális nyílás a két pitvar között (a magzatban)', segitseg: 'Foramen = nyílás.', megoldas: 'A foramen ovale a pitvari sövényen lévő nyílás: a magzatban a jobb pitvarból a bal pitvarba vezeti a vért. Születés után bezárul.' },
-      { kerdes: 'Mit köt össze a <b>ductus Botalli</b> (Botallo-vezeték)?', szakma: CIMKEK.LATIN, valasztas: ['A tüdőverőeret és az aortát', 'A két pitvart', 'A köldökvénát és a májat', 'A két kamrát'], valasz: 'A tüdőverőeret és az aortát', segitseg: 'Ductus = vezeték.', megoldas: 'A Botalli-vezeték a tüdőverőérből az aortába tereli a vért, így az kikerüli a még nem működő tüdőt.' },
+      { kerdes: 'Mit köt össze a <b>ductus Botalli</b> (Botalli- vagy Botallo-vezeték)?', szakma: CIMKEK.LATIN, valasztas: ['A tüdőverőeret és az aortát', 'A két pitvart', 'A köldökvénát és a májat', 'A két kamrát'], valasz: 'A tüdőverőeret és az aortát', segitseg: 'Ductus = vezeték.', megoldas: 'A Botallo-vezeték a tüdőverőérből az aortába tereli a vért, így az kikerüli a még nem működő tüdőt.' },
       { kerdes: 'Mit jelent, hogy a megtermékenyített pete <b>totipotens</b>?', valasztas: ['Képes az egész szervezetet létrehozni', 'Csak egy szövetet tud kialakítani', 'Nem tud osztódni', 'Mozgásra képes'], valasz: 'Képes az egész szervezetet létrehozni', segitseg: 'Toti- = egész.', megoldas: 'A pete totipotens; a differenciálódott sejtek már unipotensek, csak egy meghatározott szövetet, szervet képesek kialakítani.' },
       { kerdes: 'Mi a <b>differenciálódás</b>?', valasztas: ['A sejtcsoportok eltérő irányú fejlődése, amelyből különböző sejttípusok lesznek', 'A sejtek számának növekedése', 'A csíra beágyazódása', 'A sejtek elhalása'], valasz: 'A sejtcsoportok eltérő irányú fejlődése, amelyből különböző sejttípusok lesznek', segitseg: 'Elkülönülés.', megoldas: 'A sokféle sejt, szövet, szerv kialakulását két tényező magyarázza: a folytonos sejtosztódás és a sejtek elkülönülése (differenciálódás).' },
-      { kerdes: 'A könyv szerint melyik hónapban kezd a magzat aktív mozgásokat végezni?', valasz: 4, egyseg: 'hónap', segitseg: 'A 3. után.', megoldas: 'A 4. hónapban kezd a magzat aktívan mozogni; az 5. hónapban termelődik a magzatmáz, a 6.-ban kezdődik a bőr alatti zsírpárna.' },
+      { kerdes: 'A könyv szerint melyik hónapban kezd a magzat aktív mozgásokat végezni?', valasz: 4, egyseg: 'hónap', segitseg: 'Röviddel a méhlepény kifejlődése után.', megoldas: 'A 4. hónapban kezd a magzat aktívan mozogni; az 5. hónapban termelődik a magzatmáz, a 6.-ban kezdődik a bőr alatti zsírpárna.' },
       { kerdes: 'Miért mondja a könyv, hogy az egyedfejlődés a fajfejlődés „lerövidített formája”?', valasztas: ['Mert az embrióban az állatokra jellemző képletek jelennek meg, majd eltűnnek (pl. szőrtakaró, farok)', 'Mert a magzat 280 nap alatt fejlődik', 'Mert az ember az állatoktól származik közvetlenül', 'Mert a magzat nem fejlődik tovább születés után'], valasz: 'Mert az embrióban az állatokra jellemző képletek jelennek meg, majd eltűnnek (pl. szőrtakaró, farok)', segitseg: 'A 3. hónap végi magzatnak farka és szőrtakarója van.', megoldas: 'A magzati fejlődés során nagyjából megfigyelhetők a fajfejlődés átalakulásai; pl. a 3. hónap végén szőrtakaró és farok, amely később eltűnik.' },
       { kerdes: 'Magzati keringés: hová jut az alsó üres vénából a jobb pitvarba érkező vér nagy része?', valasztas: ['Az ovális nyíláson át a bal pitvarba', 'A jobb kamrán át a tüdőbe', 'Vissza a méhlepénybe', 'A koszorúerekbe'], valasz: 'Az ovális nyíláson át a bal pitvarba', segitseg: 'Rövidzár a pitvarok között.', megoldas: 'Az alsó üres véna (a méhlepényből jövő friss vérrel kevert) vére a foramen ovalén át a bal pitvarba, onnan a bal kamrába és az aortába jut.' },
       { kerdes: 'Hány köldökartéria és hány köldökvéna fut a köldökzsinórban?', valasztas: ['2 artéria és 1 véna', '1 artéria és 2 véna', '1 artéria és 1 véna', '2 artéria és 2 véna'], valasz: '2 artéria és 1 véna', segitseg: 'A két belső csípőverőérből ered egy-egy köldökartéria.', megoldas: 'Két köldökartéria (a belső csípőverőerekből) viszi a vért a méhlepénybe, egy köldökvéna hozza vissza a friss vért.' },
       { kerdes: 'Milyen vért szállítanak a köldökartériák?', valasztas: ['Oxigénszegény, elhasznált vért a magzatból a méhlepénybe', 'Oxigéndús vért a méhlepényből a magzatba', 'Anyai vért', 'Magzatvizet'], valasz: 'Oxigénszegény, elhasznált vért a magzatból a méhlepénybe', segitseg: 'Az artéria a szívtől el visz – itt a méhlepény felé.', megoldas: 'Itt is igaz: az artéria a szívtől elvezető ér, nem az oxigéntartalom dönt. A köldökartériák elhasznált vért, a köldökvéna friss vért szállít.' },
       { kerdes: 'Várandós a 8. terhességi hétnél tart, és „csak egy kis” gyógyszert szedne engedély nélkül. Miért különösen érzékeny ez az időszak a magzat szempontjából?', szakma: CIMKEK.TERHES, valasztas: ['Mert ekkor alakulnak ki a szervtelepek – a káros hatás fejlődési rendellenességet okozhat', 'Mert ekkor már kész minden szerv', 'Mert ekkor fejlődik ki a bőr alatti zsír', 'Nem érzékeny időszak'], valasz: 'Mert ekkor alakulnak ki a szervtelepek – a káros hatás fejlődési rendellenességet okozhat', segitseg: 'A 4. héten már megvan a szív, a máj, a végtagok telepe.', megoldas: 'Az első hónapokban (főleg az első trimeszterben) alakulnak ki a szervek. Gyógyszer, alkohol, dohányzás, sugárzás, egyes fertőzések ekkor okozhatnak legnagyobb eséllyel fejlődési rendellenességet. Terhesség alatt gyógyszert csak orvosi javaslatra!' },
       {
-        kerdes: 'Melyik fejlődési szakasz van kiemelve az ábrán? <small>(1. ábra)</small>', abra: () => Rajz.cimkeNelkul(fejlodes(2)), szakma: CIMKEK.ABRA,
+        kerdes: 'A korai fejlődés szakaszai közül melyik van kiemelve az ábrán? <small>(1. ábra)</small>', abra: () => Rajz.cimkeNelkul(fejlodes(2)), szakma: CIMKEK.ABRA,
         valasztas: ['szedercsíra (morula)', 'hólyagcsíra (blastula)', 'bélcsíra (gastrula)', 'megtermékenyített pete (zigóta)'], valasz: 'szedercsíra (morula)',
-        segitseg: 'Balról jobbra: pete → barázdálódás → szedercsíra → hólyagcsíra → bélcsíra.', megoldas: 'A kiemelt szakasz a szedercsíra: tömör, szederszerű sejthalmaz. Utána üreg képződik benne (hólyagcsíra).',
+        segitseg: 'Tömör vagy üreges a kiemelt sejthalmaz?', megoldas: 'A kiemelt szakasz a szedercsíra: tömör, szederszerű sejthalmaz. Utána üreg képződik benne (hólyagcsíra).',
       },
       {
-        kerdes: 'Melyik fejlődési szakasz van kiemelve az ábrán? <small>(2. ábra)</small>', abra: () => Rajz.cimkeNelkul(fejlodes(4)), szakma: CIMKEK.ABRA,
+        kerdes: 'Melyik fejlődési szakaszt mutatja a kiemelt rajz? <small>(2. ábra)</small>', abra: () => Rajz.cimkeNelkul(fejlodes(4)), szakma: CIMKEK.ABRA,
         valasztas: ['bélcsíra (gastrula)', 'szedercsíra (morula)', 'hólyagcsíra (blastula)', 'megtermékenyített pete (zigóta)'], valasz: 'bélcsíra (gastrula)',
         segitseg: 'Két réteg és egy nyílás (ősszáj).', megoldas: 'A kiemelt szakasz a bélcsíra: két sejtrétegű zsák (kék: külső, piros: belső csíralemez), ősbéllel és ősszájjal.',
       },
       {
-        kerdes: 'Melyik csíralemez van kiemelve az ábrán? <small>(3. ábra)</small>', abra: () => Rajz.cimkeNelkul(lemezek('ekto')), szakma: CIMKEK.ABRA,
+        kerdes: 'Az ábra a három csíralemezt mutatja (fent a külső). Melyik van kiemelve? <small>(3. ábra)</small>', abra: () => Rajz.cimkeNelkul(lemezek('ekto')), szakma: CIMKEK.ABRA,
         valasztas: ['külső csíralemez (ectoderma)', 'középső csíralemez (mesoderma)', 'belső csíralemez (entoderma)', 'chorion'], valasz: 'külső csíralemez (ectoderma)', fixSorrend: true,
         segitseg: 'Fentről lefelé: külső – középső – belső.', megoldas: 'A kiemelt réteg a külső csíralemez (ectoderma): bőr, haj, köröm, idegrendszer fejlődik belőle.',
       },
       {
-        kerdes: 'Melyik csíralemez van kiemelve az ábrán? <small>(4. ábra)</small>', abra: () => Rajz.cimkeNelkul(lemezek('mezo')), szakma: CIMKEK.ABRA,
+        kerdes: 'Az ábrán a három csíralemez látható (fent a külső). Melyik réteg van kiemelve? <small>(4. ábra)</small>', abra: () => Rajz.cimkeNelkul(lemezek('mezo')), szakma: CIMKEK.ABRA,
         valasztas: ['külső csíralemez (ectoderma)', 'középső csíralemez (mesoderma)', 'belső csíralemez (entoderma)', 'chorion'], valasz: 'középső csíralemez (mesoderma)', fixSorrend: true,
         segitseg: 'Fentről lefelé: külső – középső – belső.', megoldas: 'A kiemelt réteg a középső csíralemez (mesoderma): csont, izom, kötőszövet, szív, erek fejlődik belőle.',
       },
     ]),
     ...Tananyag.szint(3, [
-      { kerdes: 'Mi történik a keringésben az újszülött <b>első légvételekor</b>?', valasztas: ['A tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvari nyomás nő, az ovális nyílás bezárul, a Botalli-vezeték elzáródik', 'A szív először kezd verni', 'A köldökvéna kitágul, több vér jön a méhlepényből', 'Semmi nem változik'], valasz: 'A tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvari nyomás nő, az ovális nyílás bezárul, a Botalli-vezeték elzáródik', segitseg: 'A tüdő „szívó hatása”.', megoldas: 'A kitáguló tüdőerek szívják a vért a tüdőverőérből; a tüdővénákon több vér jut a bal pitvarba, nyomása nagyobb lesz, mint a jobbé, ezért a foramen ovale bezárul. A köldökzsinór lekötése után a köldökerek hasi szakasza és a Botalli-vezeték is elzáródik.' },
+      { kerdes: 'Mi történik a keringésben az újszülött <b>első légvételekor</b>?', valasztas: ['A tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvari nyomás nő, az ovális nyílás bezárul, a Botallo-vezeték elzáródik', 'A szív először kezd verni', 'A köldökvéna kitágul, több vér jön a méhlepényből', 'Semmi nem változik'], valasz: 'A tüdőerek kitágulnak, a vér a tüdőbe áramlik; a bal pitvari nyomás nő, az ovális nyílás bezárul, a Botallo-vezeték elzáródik', segitseg: 'A tüdő „szívó hatása”.', megoldas: 'A kitáguló tüdőerek szívják a vért a tüdőverőérből; a tüdővénákon több vér jut a bal pitvarba, nyomása nagyobb lesz, mint a jobbé, ezért a foramen ovale bezárul. A köldökzsinór lekötése után a köldökerek hasi szakasza és a Botallo-vezeték is elzáródik.' },
       { kerdes: 'Miért záródik be az ovális nyílás születés után?', valasztas: ['Mert a bal pitvarban nagyobb lesz a nyomás, mint a jobb pitvarban', 'Mert a jobb pitvar megnő', 'Mert a köldökvéna összehúzódik', 'Mert a szívbillentyűk benövik'], valasz: 'Mert a bal pitvarban nagyobb lesz a nyomás, mint a jobb pitvarban', segitseg: 'A tüdőből most már sok vér jön a bal pitvarba.', megoldas: 'A nyomáskülönbség „rácsukja” a nyílás szelepszerű lemezét; később végleg összenő. Ha nem zárul be, nyitott ovális nyílás marad.' },
       { kerdes: 'Miért fontos az újszülött <b>szárítása, melegen tartása</b> és megfelelő légzése a keringés szempontjából is?', szakma: CIMKEK.GYERMEK, valasztas: ['Mert hidegben, oxigénhiányban és savasodásban a tüdőerek szűkek maradhatnak, és a vér továbbra is kikerüli a tüdőt (magzati keringés marad fenn)', 'Mert a meleg bezárja a köldökereket', 'Mert különben nem sír', 'Nincs összefüggés a keringéssel'], valasz: 'Mert hidegben, oxigénhiányban és savasodásban a tüdőerek szűkek maradhatnak, és a vér továbbra is kikerüli a tüdőt (magzati keringés marad fenn)', segitseg: 'Az átállás a tüdőerek kitágulásán múlik.', megoldas: 'Kihűlés, hipoxia, acidózis szűkíti a tüdőereket; a magas tüdőnyomás miatt a vér a rövidzárakon át a tüdőt megkerülheti → cianózis, romló állapot. Ezért: szárítás, meleg, légút, szükség esetén lélegeztetés.' },
       { kerdes: 'A könyv szerint a magzatban melyik szerv kapja a „legfrissebb”, legtisztább artériás vért?', valasztas: ['A máj', 'Az agy', 'A tüdő', 'A vese'], valasz: 'A máj', segitseg: 'A köldökvéna előbb ide ér.', megoldas: 'A könyv szerint tisztán artériás vért csak a máj kap, a többi artéria kevert vért tartalmaz. (Ma tudjuk, hogy a köldökvéna vérének jelentős része a ductus venosuson át megkerüli a májat, és a legoxigéndúsabb vér a foramen ovalén át főleg a szívbe és az agyba jut – vizsgán a könyv szerinti választ add.)' },
-      { kerdes: 'Miért keveredik viszonylag kevéssé a jobb pitvarban az alsó és a felső üres véna vére a magzatban?', valasztas: ['Mert az áramlás iránya az alsó üres véna vérét az ovális nyílás felé, a felsőét a jobb kamra felé tereli', 'Mert a két véna más-más pitvarba ömlik', 'Mert a jobb pitvarban sövény választja el őket', 'Mert a felső üres véna a magzatban zárva van'], valasz: 'Mert az áramlás iránya az alsó üres véna vérét az ovális nyílás felé, a felsőét a jobb kamra felé tereli', segitseg: 'Két „sugár” keresztezi egymást.', megoldas: 'A végleges keveredés az aortában jön létre, ahol a jobb kamra vénás vére a Botalli-vezetéken át a jórészt artériás vérhez adódik.' },
+      { kerdes: 'Miért keveredik viszonylag kevéssé a jobb pitvarban az alsó és a felső üres véna vére a magzatban?', valasztas: ['Mert az áramlás iránya az alsó üres véna vérét az ovális nyílás felé, a felsőét a jobb kamra felé tereli', 'Mert a két véna más-más pitvarba ömlik', 'Mert a jobb pitvarban sövény választja el őket', 'Mert a felső üres véna a magzatban zárva van'], valasz: 'Mert az áramlás iránya az alsó üres véna vérét az ovális nyílás felé, a felsőét a jobb kamra felé tereli', segitseg: 'Két „sugár” keresztezi egymást.', megoldas: 'A végleges keveredés az aortában jön létre, ahol a jobb kamra vénás vére a Botallo-vezetéken át a jórészt artériás vérhez adódik.' },
       { kerdes: 'A könyv szerint a spermium másodpercenként kb. 0,025 mm-t halad. Hány mm ez percenként?', valasz: 1.5, tizedes: 1, egyseg: 'mm/perc', szakma: CIMKEK.SZAMOLAS, segitseg: '0,025 · 60.', megoldas: '0,025 mm/s · 60 = 1,5 mm/perc. Így a kb. 16–20 cm-es utat kb. 2 óra alatt teszi meg.' },
       { kerdes: 'Egy kiürülő ondóváladék a könyv szerint kb. 3,3 ml, és kb. 350 millió spermiumot tartalmaz. Kb. hány millió spermium van 1 ml-ben?', valasz: 350 / 3.3, tizedes: 0, egyseg: 'millió/ml', szakma: CIMKEK.SZAMOLAS, segitseg: '350 : 3,3.', megoldas: '350 : 3,3 ≈ 106 millió/ml. A megtermékenyítéshez csak egy kell – a nagy szám a fajfenntartás biztosítéka.' },
       { kerdes: 'A 4. hét végén az embrió kb. 5 mm, a 2. hónap végén kb. 2,5 cm. Hányszorosára nőtt a hossza?', valasz: 5, egyseg: '×', szakma: CIMKEK.SZAMOLAS, segitseg: 'Váltsd át: 2,5 cm = 25 mm.', megoldas: '25 mm : 5 mm = 5-szörösére – kb. 4 hét alatt.' },
@@ -224,11 +229,11 @@
       { kerdes: 'Miért javasolnak <b>folsavat</b> a fogamzás előtt és a terhesség elején?', szakma: CIMKEK.TERHES, valasztas: ['Mert csökkenti a velőcső-záródási rendellenességek kockázatát', 'Mert megakadályozza a koraszülést minden esetben', 'Mert pótolja a vasat', 'Mert gyorsítja a szülést'], valasz: 'Mert csökkenti a velőcső-záródási rendellenességek kockázatát', segitseg: 'A velőcső nagyon korán, az első hetekben záródik.', megoldas: 'A folsav (B-vitamin-csoport) hiánya összefügg a nyitott gerinccel és más velőcső-rendellenességekkel; mivel a velőcső már az első hetekben záródik, a pótlást a fogamzás előtt kell kezdeni.' },
       { kerdes: 'Helyszíni szülés után miért kell a köldökzsinórt két helyen lefogni, és a kettő között átvágni?', szakma: CIMKEK.TERHES, valasztas: ['Mert a köldökerek a magzat érhálózatában folytatódnak – így sem az újszülött, sem a lepény felől nem vérzik', 'Mert így gyorsabban leválik a lepény', 'Mert a köldökzsinórban nincs ér', 'Hogy a magzatvíz ne folyjon el'], valasz: 'Mert a köldökerek a magzat érhálózatában folytatódnak – így sem az újszülött, sem a lepény felől nem vérzik', segitseg: '2 artéria + 1 véna fut benne.', megoldas: 'A lefogás után a köldökerek hasi szakasza elzáródik. A lefogás nélküli átvágás az újszülött vérvesztésével járhat – az újszülött kis vérmennyisége miatt ez veszélyes.' },
       { kerdes: 'Miért fontos szülésnél, hogy a magzat feje a legnagyobb körfogatú testrész?', valasztas: ['Mert a fejnek kell elsőként és legnehezebben áthaladnia a szülőcsatornán; ha a fej megszületett, a test többnyire könnyebben követi', 'Mert a fej a legkönnyebb rész', 'Mert a fej mindig utoljára születik', 'Nincs jelentősége'], valasz: 'Mert a fejnek kell elsőként és legnehezebben áthaladnia a szülőcsatornán; ha a fej megszületett, a test többnyire könnyebben követi', segitseg: 'Az agyvelő gyors fejlődése miatt nagy a fej.', megoldas: 'A fej már az embrióban is aránytalanul nagy (agyvelő). A könyv is kiemeli: a fej körfogata fontos szempont a szülésvezetésnél. (Kivétel: vállelakadás.)' },
-      { kerdes: 'Fiúújszülöttnél mire utal, ha a herék a herezacskóban vannak?', valasztas: ['Az érettség jele (a herék leszálltak a hasüregből)', 'Koraszülés jele', 'Fejlődési rendellenesség', 'Fertőzés jele'], valasz: 'Az érettség jele (a herék leszálltak a hasüregből)', segitseg: 'A herék a hasüregben fejlődnek.', megoldas: 'A könyv szerint az érettség jele fiúknál a herék leszállása, továbbá hogy a köldök kb. a test hosszának közepén van.' },
-      magzatiFeladat('ovalis', 'ovális nyílás (foramen ovale)', 5, 'Kiemelve: az ovális nyílás a két pitvar között. A jobb pitvarból a bal pitvarba vezeti a vért; születés után bezárul.'),
-      magzatiFeladat('botalli', 'Botalli-vezeték (ductus Botalli)', 6, 'Kiemelve: a Botalli-vezeték, amely a tüdőverőérből az aortába tereli a vért, így az kikerüli a még nem működő tüdőt.'),
-      magzatiFeladat('koldokvena', 'köldökvéna', 7, 'Kiemelve: a köldökvéna, amely a méhlepényből a friss, oxigéndús vért szállítja a magzatba (a máj felé).'),
-      magzatiFeladat('koldokarteria', 'köldökartériák', 8, 'Kiemelve: a köldökartériák, amelyek a magzat elhasznált vérét viszik vissza a méhlepénybe.'),
+      { kerdes: 'Fiú újszülöttnél mire utal, ha a herék a herezacskóban vannak?', valasztas: ['Az érettség jele (a herék leszálltak a hasüregből)', 'Koraszülés jele', 'Fejlődési rendellenesség', 'Fertőzés jele'], valasz: 'Az érettség jele (a herék leszálltak a hasüregből)', segitseg: 'A herék a hasüregben fejlődnek.', megoldas: 'A könyv szerint az érettség jele fiúknál a herék leszállása, továbbá hogy a köldök kb. a hasfal közepén van.' },
+      magzatiFeladat('ovalis', 'ovális nyílás (foramen ovale)', 5, 'A magzati vérkeringés vázlatán egy pont van kiemelve. Melyik nyílás vagy ér ez?', 'Kiemelve: az ovális nyílás a két pitvar között. A jobb pitvarból a bal pitvarba vezeti a vért; születés után bezárul.'),
+      magzatiFeladat('botalli', 'Botallo-vezeték (ductus Botalli)', 6, 'A magzati vérkeringés vázlatán a szív alatt futó vízszintes érszakasz van kiemelve. Melyik ez?', 'Kiemelve: a Botallo-vezeték, amely a tüdőverőérből az aortába tereli a vért, így az kikerüli a még nem működő tüdőt.'),
+      magzatiFeladat('koldokvena', 'köldökvéna', 7, 'A magzati vérkeringés vázlatán a méhlepényből induló ér van kiemelve. Melyik ez?', 'Kiemelve: a köldökvéna, amely a méhlepényből a friss, oxigéndús vért szállítja a magzatba (a máj felé).'),
+      magzatiFeladat('koldokarteria', 'köldökartériák', 8, 'A magzati vérkeringés vázlatán a méhlepénybe visszatérő ér van kiemelve. Melyik ez?', 'Kiemelve: a köldökartériák, amelyek a magzat elhasznált vérét viszik vissza a méhlepénybe.'),
     ]),
   ];
 
@@ -274,7 +279,8 @@
         <li><b>Szedercsíra (morula):</b> tömör sejthalmaz.</li>
         <li><b>Hólyagcsíra (blastula):</b> csíraüreg, körülötte egy sejtréteg. Beágyazódik a méh nyálkahártyájába.</li>
         <li><b>Bélcsíra (gastrula):</b> betüremkedéssel két sejtrétegű zsák: ősbél, ősszáj.</li>
-        <li>Megjelenik a <b>középső csíralemez</b>, a <b>szervtelepek</b>, a központi idegrendszer telepe és a <b>gerinchúr</b> (a gerinc azonban az <b>őscsigolyákból</b> fejlődik).</li>
+        <li>Megjelenik a <b>középső csíralemez</b>, majd a csíralemezeken a <b>szervtelepek</b>.</li>
+        <li>Kialakul a központi idegrendszer telepe és a <b>gerinchúr</b>, a primitív szervezet tengelye. (A gerinc azonban nem ebből, hanem a mellette megjelenő <b>őscsigolyákból</b> fejlődik.)</li>
       </ol>
       <p>A megtermékenyített pete <b>totipotens</b> (az egész szervezetet létrehozhatja), a differenciálódott sejtek <b>unipotensek</b>. A fejlődést az <b>organizációs centrumok</b> irányítják (<b>indukció</b>), ennek hatására a sejtek <b>determinálódnak</b>. Korán még a környezet dönt: az átültetett sejt az új helyének megfelelően fejlődik.</p>
 
@@ -296,19 +302,19 @@
       ${magzati()}
       <p>A magzat tüdeje és bele nem működik, ezért:</p>
       <ol>
-        <li>A méhlepényből a friss vér a <b>köldökvénán</b> át – részben közvetlenül, részben a májon keresztül – az <b>alsó üres vénába</b>, majd a jobb pitvarba jut.</li>
+        <li>A méhlepényből a friss vér a <b>köldökvénán</b> át – részben közvetlenül, részben a májon keresztül – az <b>alsó üres vénába</b> kerül, ahol a törzs és az alsó végtagok vénás vérével keveredik, majd a jobb pitvarba jut.</li>
         <li>Innen nagy része az <b>ovális nyíláson</b> (foramen ovale) át a bal pitvarba, a bal kamrába és az aortába kerül.</li>
-        <li>A felső üres véna vére a jobb kamrába, onnan a tüdőverőérbe jut, de a tüdő helyett a <b>Botalli-vezetéken</b> (ductus Botalli) át az aortába folyik.</li>
+        <li>A felső üres véna vére a jobb kamrába, onnan a tüdőverőérbe jut, de nagy része a tüdő helyett a <b>Botallo-vezetéken</b> (ductus Botalli) át az aortába folyik.</li>
         <li>A két <b>köldökartéria</b> (a belső csípőverőerekből) visszaviszi a vért a méhlepénybe.</li>
       </ol>
-      <p>A könyv szerint tisztán artériás vért csak a máj kap, a test többi artériája kevert vért tartalmaz. <b>Születéskor</b> az első légvétellel a tüdőerek kitágulnak, a bal pitvari nyomás megnő → az ovális nyílás bezárul; a köldökzsinór lekötése után a köldökerek hasi szakasza és a Botalli-vezeték is elzáródik.</p>
+      <p>A könyv szerint tisztán artériás vért csak a máj kap, a test többi artériája kevert vért tartalmaz. <b>Születéskor</b> az első légvétellel a tüdőerek kitágulnak, a bal pitvari nyomás megnő → az ovális nyílás bezárul; a köldökzsinór lekötése után a köldökerek hasi szakasza és a Botallo-vezeték is elzáródik.</p>
       <p class="kerekites">A mai felfogás szerint a köldökvéna vérének jelentős része a ductus venosuson át megkerüli a májat, és a legoxigéndúsabb vér főleg a szívbe és az agyba jut. Vizsgán a könyv szerinti leírást mondd.</p>
 
       <h3>A gyakorlatban</h3>
       <div class="doboz szakma">
         <p><b>🚑 Miért fontos a mentőnek?</b></p>
         <ul>
-          <li><b>Terhességi hét:</b> a napok száma osztva 7-tel (pl. 98 nap = 14. hét). 280 nap = 40 hét = 10 holdhónap.</li>
+          <li><b>Terhességi hét:</b> a napok száma osztva 7-tel (pl. 98 nap = 14 betöltött hét). 280 nap = 40 hét = 10 holdhónap.</li>
           <li>Az <b>első hónapokban</b> alakulnak ki a szervtelepek: ilyenkor a legveszélyesebb a gyógyszer, az alkohol, a sugárzás, egyes fertőzések – fejlődési rendellenességet okozhatnak.</li>
           <li><b>Újszülött:</b> szárítás, meleg, légút, szükség esetén lélegeztetés – a kihűlés és az oxigénhiány gátolhatja a magzati keringés átállását.</li>
           <li><b>Köldökzsinór:</b> két helyen lefogni, közte átvágni; a lepényt vidd a kórházba.</li>
@@ -322,7 +328,9 @@
           <li><b>4. hét:</b> kb. 5 mm, alapforma; a fej főleg agyvelő; szív, máj, végtagok telepe.</li>
           <li><b>2. hónap vége:</b> kb. 2,5 cm, emberi forma.</li>
           <li><b>3. hónap:</b> nagy fej, rövid végtagok, magzatgyapjú (lanugo); eldönthető a nem.</li>
-          <li><b>4. hónap:</b> aktív mozgások. <b>5. hónap:</b> magzatmáz. <b>6. hónap:</b> bőr alatti zsírpárna.</li>
+          <li><b>4. hónap:</b> aktív mozgások.</li>
+          <li><b>5. hónap:</b> magzatmáz.</li>
+          <li><b>6. hónap:</b> bőr alatti zsírpárna, a bőr ráncolható.</li>
           <li><b>7–8. hónap:</b> a könyv szerint esetleg már az anyán kívül is életben tartható (ma ez kb. a 22–24. héttől lehetséges intenzív ellátással).</li>
         </ul>
       </details>
@@ -343,7 +351,7 @@
           <li>Pete → barázdálódás → <b>szedercsíra</b> → <b>hólyagcsíra</b> → <b>bélcsíra</b>.</li>
           <li>Ectoderma: bőr, idegrendszer · Mesoderma: csont, izom, szív, erek · Entoderma: bél, légcső, máj.</li>
           <li>Amnion belül (magzatvíz), chorion kívül (méhlepény); köldökzsinór: 2 artéria + 1 véna.</li>
-          <li>Magzati rövidzárak: <b>ovális nyílás</b> (pitvarok között) és <b>Botalli-vezeték</b> (tüdőverőér → aorta); az első légvétellel bezárulnak.</li>
+          <li>Magzati rövidzárak: <b>ovális nyílás</b> (pitvarok között) és <b>Botallo-vezeték</b> (tüdőverőér → aorta); az első légvétellel bezárulnak.</li>
         </ul>
       </div>`,
   });

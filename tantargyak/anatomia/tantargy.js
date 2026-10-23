@@ -10,7 +10,7 @@ Tananyag.tantargy({
   leiras: 'Hogyan épül fel és hogyan működik a test (Donáth Tibor: Anatómia–élettan témakörei)',
   resz: '🫀 Anatómia és élettan',
   kifejtve: true,
-  reszLeiras: 'Külön rész a test felépítéséről és működéséről – szervrendszerenként, minden alrésszel. Ami itt van, az minden helyszíni döntés alapja.',
+  reszLeiras: 'Külön rész a test felépítéséről és működéséről – szervrendszerenként, minden alrésszel.',
   menu: [
     {
       azon: 'alapfogalmak',

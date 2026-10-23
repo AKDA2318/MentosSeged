@@ -687,3 +687,9 @@ header { border-bottom: 4px solid var(--szakma); }
 
 /* Részleges kiadás: még nem elérhető rész (nem kattintható) */
 .tema.hamarosan-kartya { opacity: 0.55; cursor: default; pointer-events: none; }
+
+/* Irányok ábrája: kiindulópont, középvonal, a kar proximális és disztális része */
+.abra .iranypont { fill: var(--piros); stroke: var(--felulet); stroke-width: 1.5; }
+.abra .vonal-kozep { stroke: var(--szoveg); stroke-width: 1.5; stroke-dasharray: 6 4; opacity: 0.7; }
+.abra .kar-proximalis { fill: var(--kitolt-b); stroke: var(--kek); stroke-width: 1.5; }
+.abra .kar-distalis { fill: var(--kitolt-a); stroke: #c46a12; stroke-width: 1.5; }
