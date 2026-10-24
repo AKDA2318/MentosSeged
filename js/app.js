@@ -6,6 +6,7 @@
 //   #/<tantárgy>/<csoport>                    altémák (csak több altémás csoportnál)
 //   #/<tantárgy>/<téma>/magyarazat|gyakorlas|vizsga  egy téma három füle (a témazáró: js/vizsga.js)
 //   #/vizsga[/<tantárgy>[/<csoport>]]           vizsgák: komplex vizsgaszimuláció, tantárgyi, témakör-vizsga
+//   #/tamogatas                               támogatás oldal (js/tamogatas.js)
 'use strict';
 
 const PARONKENT = 2; // egyszerre ennyi feladat látszik
@@ -140,7 +141,7 @@ function tantargyOldal(tantargy) {
   cimBeallit(...(tobbTantargy ? [tantargy.cim] : []));
   tartalom.innerHTML = `${tobbTantargy ? `<a class="vissza" href="#/">← Tantárgyak</a><h2>${tantargy.cim}</h2>` : ''}
     <p class="bevezeto">Válassz témát! Minden témánál először elolvashatod a magyarázatot, utána gyakorolhatsz.</p>
-    ${vizsgaGomb(`#/vizsga/${tantargy.azon}`, 'Tantárgyi vizsga', vizsgaKulcs([tantargy.azon]), 'tantargy')}
+    ${temakHaladasa(tantargy, tantargy.menu.flatMap((c) => c.temak)).osszes ? vizsgaGomb(`#/vizsga/${tantargy.azon}`, 'Tantárgyi vizsga', vizsgaKulcs([tantargy.azon]), 'tantargy') : ''}
     <div class="temak">${tantargy.menu
       .map((c) => kartya({ href: csoportLink(tantargy, c), ...c, ...temakHaladasa(tantargy, c.temak) }))
       .join('')}</div>`;
@@ -149,7 +150,7 @@ function tantargyOldal(tantargy) {
 function csoportOldal(tantargy, csoport) {
   cimBeallit(csoport.cim);
   tartalom.innerHTML = `<a class="vissza" href="${tantargy.kifejtve ? '#/' : `#/${tantargy.azon}`}">← ${tantargy.kifejtve ? 'Kezdőlap' : 'Témák'}</a><h2>${csoport.cim}</h2>
-    ${vizsgaGomb(`#/vizsga/${tantargy.azon}/${csoport.azon}`, 'Témakör-vizsga', vizsgaKulcs([tantargy.azon, csoport.azon]), 'csoport')}
+    ${temakHaladasa(tantargy, csoport.temak).osszes ? vizsgaGomb(`#/vizsga/${tantargy.azon}/${csoport.azon}`, 'Témakör-vizsga', vizsgaKulcs([tantargy.azon, csoport.azon]), 'csoport') : ''}
     <div class="temak">${csoport.temak
       .map((t) => {
         const tema = tantargy.temak[t.azon];
@@ -683,6 +684,10 @@ function osszegzes(ctx) {
 function utvonal() {
   vizsgaIdozitoLeallit();
   const [tAzon, azon, ful] = location.hash.replace(/^#\/?/, '').split('/');
+  if (tAzon === 'tamogatas') {
+    tamogatasOldal();
+    return window.scrollTo(0, 0);
+  }
   if (tAzon === 'vizsga') {
     vizsgaOldal([azon, ful].filter(Boolean));
     return window.scrollTo(0, 0);

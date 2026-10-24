@@ -693,3 +693,28 @@ header { border-bottom: 4px solid var(--szakma); }
 .abra .vonal-kozep { stroke: var(--szoveg); stroke-width: 1.5; stroke-dasharray: 6 4; opacity: 0.7; }
 .abra .kar-proximalis { fill: var(--kitolt-b); stroke: var(--kek); stroke-width: 1.5; }
 .abra .kar-distalis { fill: var(--kitolt-a); stroke: #c46a12; stroke-width: 1.5; }
+
+/* Fejléc: logó és a Támogatás hivatkozás egy sorban */
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+.fejlec-tamogatas {
+  font-weight: 600; text-decoration: none; color: var(--szakma); white-space: nowrap;
+  border: 1px solid var(--szakma); border-radius: 999px; padding: 6px 14px;
+}
+.fejlec-tamogatas:hover, .fejlec-tamogatas:focus-visible { background: var(--szakma-hatter); }
+
+/* Támogatás oldal */
+.tamogatas-vezeto { font-size: 1.15rem; font-weight: 700; }
+.tamogatas-kartya {
+  display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 20px; align-items: center;
+  background: var(--felulet); border: 1px solid var(--keret); border-radius: 14px; padding: 20px; margin: 20px 0;
+}
+.tamogatas-kartya h3 { margin-top: 0; }
+.tamogatas-szoveg { min-width: 0; }
+.tamogatas-szoveg .gomb { margin: 0 8px 8px 0; }
+.tamogatas-qr { background: #fff; border-radius: 12px; padding: 10px; }
+.tamogatas-qr svg { display: block; width: 100%; height: auto; }
+.tamogatas-koszonet { font-weight: 600; }
+@media (max-width: 560px) {
+  .tamogatas-kartya { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .tamogatas-qr { width: min(220px, 100%); }
+}
