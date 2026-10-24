@@ -4,7 +4,8 @@
 // a Tananyag.tantargy({...}) hívással leírja a menüt. A menü azon altémáinál,
 // amelyeknek van `fajl` mezője, a keret betölti a fájlt; a témafájl a
 // Tananyag.tema('<tantárgy>', {...}) hívással regisztrálja magát.
-// Altéma `fajl` nélkül „Hamarosan” jelzéssel jelenik meg.
+// Altéma `fajl` nélkül, vagy ha a megadott fájl (még) nincs feltöltve, illetve nem tölthető be,
+// „Hamarosan” jelzéssel, nem kattinthatóan jelenik meg – így a tananyag fájlonként, fokozatosan bővíthető.
 'use strict';
 
 // Részleges kiadás (pl. demo-anatomia/) – a kiadásfájl (js/kiadas.js) állítja be:
@@ -82,7 +83,8 @@ const Tananyag = {
     return Promise.all(
       cimek.map((src) =>
         szkriptBetoltes(src)
-          .catch(() => console.error(`Nem sikerült betölteni: ${src}`))
+          // Hiányzó (még fel nem töltött) vagy hibás témafájl: a téma „Hamarosan” jelzéssel jelenik meg.
+          .catch(() => console.info(`Nincs betöltve (a téma „Hamarosan” jelzéssel látszik): ${src}`))
           .then(() => jelez(++kesz, cimek.length)),
       ),
     );

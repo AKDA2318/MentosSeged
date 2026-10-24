@@ -86,7 +86,7 @@ function vizsgaHatokor(reszek) {
       tipus: 'csoport',
       ikon: csoport.ikon,
       cim: `${csoport.cim} – témakör-vizsga`,
-      leiras: `A(z) „${csoport.cim}” témakör összes témájából: ${csoport.temak.map((t) => t.cim).join(', ')}.`,
+      leiras: `A(z) „${csoport.cim}” témakör összes elérhető témájából: ${betoltott(tantargy, csoport.temak).map((x) => x.tema.cim).join(', ')}.`,
       temak: betoltott(tantargy, csoport.temak),
       hosszak: esetes
         ? [{ eset: 2, nev: 'Rövid' }, { eset: 3, nev: 'Normál' }, { eset: 5, nev: 'Hosszú' }]
@@ -181,7 +181,8 @@ function vizsgaOldal(reszek) {
   const elerheto = reszek.length ? !!tantargy && !(csoport && csoport.hamarosan) : Tananyag.teljes();
   if (!elerheto || !Tananyag.vizsgaElerheto(fajta)) return kezdolap();
   const hatokor = vizsgaHatokor(reszek);
-  if (!hatokor) return kezdolap();
+  // Még egyetlen téma sincs feltöltve a vizsga körében: nincs miből vizsgázni.
+  if (!hatokor || !hatokor.temak.length) return kezdolap();
   cimBeallit(hatokor.cim);
   tartalom.innerHTML = `<a class="vissza" href="${hatokor.vissza.href}">← ${hatokor.vissza.cim}</a>
     <h2>${hatokor.ikon || '🎓'} ${hatokor.cim}</h2><div class="panel"></div>`;
@@ -504,7 +505,9 @@ function vizsgaSzakasz() {
       <span class="leiras">${leiras}</span>
       <span class="haladas">${folyamatban ? '⏳ Folyamatban lévő vizsga' : legjobb != null ? `Legjobb eredményed: ${legjobb}% (${jegyLeiras(legjobb)[1]})` : 'Még nem vizsgáztál'}</span></a>`;
   };
-  const komplex = Tananyag.teljes() && Tananyag.vizsgaElerheto('komplex');
+  // Csak olyan vizsga indítható, amelynek körében már van feltöltött téma.
+  const vanTemaja = (t) => t.menu.some((c) => c.temak.some((x) => t.temak[x.azon]));
+  const komplex = Tananyag.teljes() && Tananyag.vizsgaElerheto('komplex') && Tananyag.tantargyak.some(vanTemaja);
   // Ha a tantárgyi vizsga nem érhető el, de a témakör-vizsga igen, az elérhető témakörök vizsgái kerülnek ide.
   const csoportVizsgak =
     !Tananyag.vizsgaElerheto('tantargy') && Tananyag.vizsgaElerheto('csoport')
@@ -529,7 +532,7 @@ function vizsgaSzakasz() {
       ${[...Tananyag.tantargyak]
         .sort((x, y) => x.hamarosan - y.hamarosan)
         .map((t) =>
-          t.hamarosan || !Tananyag.vizsgaElerheto('tantargy')
+          t.hamarosan || !Tananyag.vizsgaElerheto('tantargy') || !vanTemaja(t)
             ? hamarosanKartya(t.ikon, `${t.vizsgaCim || t.cim} – vizsga`)
             : kartyaja(`#/vizsga/${t.azon}`, t.ikon, `${t.vizsgaCim || t.cim} – vizsga`, t.esetek ? 'Egész esetek lépésről lépésre' : 'Az összes témából vegyesen', t.azon),
         )
