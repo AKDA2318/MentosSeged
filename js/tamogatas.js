@@ -23,6 +23,7 @@ function tamogatasOldal() {
       <div class="tamogatas-szoveg">
         <h3 id="tamogatas-revolut">Támogatás Revoluton</h3>
         <p>Ha szeretnél, itt tudsz támogatni:</p>
+        <p class="tamogatas-megjegyzes">Ha támogatsz, a megjegyzéshez (közleményhez) kérlek, írd be: <b>Adomány</b> 🙂</p>
         <p><a class="gomb" href="${TAMOGATAS_LINK}" target="_blank" rel="noopener">revolut.me/akda</a>
           <button type="button" class="gomb masodlagos" id="tamogatas-masol">Hivatkozás másolása</button></p>
         <p class="kerekites">Telefonnal be is olvashatod a kódot. Akkor is tudsz támogatni,
