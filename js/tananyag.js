@@ -23,6 +23,8 @@ const Tananyag = {
     // a betöltő szkript címét (régebbi böngésző), a szokásos mappát vesszük.
     const src = document.currentScript && document.currentScript.src;
     const alap = src ? new URL('.', src).href : `tantargyak/${adatok.azon}/`;
+    // A tantargy.js címének verziója (?v=…) a témafájlokra is átkerül (gyorsítótár-frissítés kiadáskor).
+    const verzio = src ? new URL(src).search : '';
     // Részleges kiadásban a többi tantárgy csak „Hamarosan” kártyaként látszik.
     const hamarosan = Array.isArray(window.MENTOS_CSAK) && !window.MENTOS_CSAK.includes(adatok.azon);
     // A nem elérhető témacsoportok témái fájl nélkül maradnak, így „Hamarosan” jelzéssel jelennek meg.
@@ -30,7 +32,7 @@ const Tananyag = {
     const menu = csoportok
       ? adatok.menu.map((c) => (csoportok.includes(c.azon) ? c : { ...c, hamarosan: true, temak: c.temak.map(({ fajl, ...t }) => t) }))
       : adatok.menu;
-    this.tantargyak.push({ ...adatok, menu, alap, temak: {}, hamarosan });
+    this.tantargyak.push({ ...adatok, menu, alap, verzio, temak: {}, hamarosan });
   },
 
   // Igaz, ha minden tantárgy elérhető (nem részleges kiadás).
@@ -76,7 +78,7 @@ const Tananyag = {
   // `jelez(kesz, osszes)` a haladásról értesít.
   betolt(jelez = () => {}) {
     const cimek = this.tantargyak.filter((t) => !t.hamarosan).flatMap((t) =>
-      [...(t.kozos || []), ...t.menu.flatMap((c) => c.temak).map((x) => x.fajl)].filter(Boolean).map((f) => t.alap + f),
+      [...(t.kozos || []), ...t.menu.flatMap((c) => c.temak).map((x) => x.fajl)].filter(Boolean).map((f) => t.alap + f + (t.verzio || '')),
     );
     let kesz = 0;
     jelez(kesz, cimek.length);

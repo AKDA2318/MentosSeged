@@ -718,3 +718,5 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   .tamogatas-kartya { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
   .tamogatas-qr { width: min(220px, 100%); }
 }
+
+.tamogatas-megjegyzes { background: var(--jegyezd-hatter); border-radius: 8px; padding: 6px 10px; display: inline-block; }

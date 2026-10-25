@@ -1,9 +1,9 @@
 # Mentős Oktató – Anatómia és élettan (demó)
 
-A Mentős Oktató gyakorló anatómia-demója: az **Anatómia és élettan** tantárgyból (a Donáth Tibor: Anatómia–élettan
-tankönyv fejezetei szerint) az **I–III. fejezet** (alapfogalmak, sejt és szövetek, fejlődés) magyarázatokkal, ábrákkal és
-gyakorlással, témazáróval és témakör-vizsgával. A többi fejezet, a többi tantárgy, az anatómia nagyvizsga
-és a komplex vizsga „Hamarosan” jelzéssel látszanak.
+A Mentős Oktató gyakorló anatómia-demója az **Anatómia és élettan** tantárgyból (a Donáth Tibor: Anatómia–élettan
+tankönyv fejezetei szerint): az **I–III. fejezet** (testtájak és irányok, sejt és szövetek, fejlődés) és a **IV. fejezetből
+a csontváz és ízületek** témája, teljes magyarázattal és ábrákkal, témánként **4 gyakorló kérdéssel**, témazáróval és
+témakör-vizsgával. A többi téma, a többi tantárgy, az anatómia nagyvizsga és a komplex vizsga „Hamarosan” jelzéssel látszik.
 
 **Megnyitás:** csomagold ki a mappát, és nyisd meg az `index.html`-t böngészőben (internet nem kell).
 Ha a ZIP-en belülről nyitod meg, a tananyag nem töltődik be.

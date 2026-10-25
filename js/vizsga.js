@@ -204,7 +204,9 @@ function inditoLap(hatokor, panel) {
   const esetSzam = new Set(hatokor.temak.flatMap(({ tema }) => tema.feladatok.filter((f) => f.eset).map((f) => f.eset))).size;
   // Csak olyan hosszúság választható, amelyhez van elég feladat / eset.
   const hosszak = hatokor.hosszak.filter((h) => (!h.eset || h.eset <= esetSzam) && (!h.irasbeli || h.irasbeli <= bank));
-  const valaszthato = hosszak.length ? hosszak : [hatokor.hosszak[0]];
+  // Ha egyik hosszúsághoz sincs elég feladat (pl. szűkített demó), a teljes feladatbankból lehet vizsgázni.
+  const elso = hatokor.hosszak[0];
+  const valaszthato = hosszak.length ? hosszak : [elso.irasbeli ? { ...elso, irasbeli: Math.min(elso.irasbeli, bank), nev: 'A teljes feladatbank' } : elso];
   const alap = Math.min(hatokor.alap, valaszthato.length - 1);
   const elozmenyek = allapot.elozmenyek.slice(-8).reverse();
   panel.innerHTML = `<div class="kartya vizsga-start">
